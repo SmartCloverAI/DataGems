@@ -20,7 +20,7 @@ export async function readUserSettings(
 ): Promise<UserInferenceSettings> {
   const cstore = getCStore();
   const res = await cstore.getValue({ key: userSettingsKey(username) });
-  if (!res.success || !res.result) return {};
+  if (!res || !("success" in res) || !res.success || !res.result) return {};
   try {
     const parsed = JSON.parse(res.result) as UserInferenceSettings;
     return {

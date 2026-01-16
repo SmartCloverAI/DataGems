@@ -14,6 +14,16 @@ function ensureAuthEnv() {
   requiredEnv("R1EN_CSTORE_AUTH_BOOTSTRAP_ADMIN_PWD");
 }
 
+function cstoreAuthAdapter() {
+  const cstore = getCStore();
+  return {
+    hget: (hkey: string, key: string) => cstore.hget({ hkey, key }),
+    hset: (hkey: string, key: string, value: string) =>
+      cstore.hset({ hkey, key, value }),
+    hgetAll: (hkey: string) => cstore.hgetall({ hkey }),
+  };
+}
+
 export function getAuthClient() {
   if (mockMode) {
     // @ts-expect-error - mock implements subset of API
@@ -22,7 +32,8 @@ export function getAuthClient() {
   if (!authInstance) {
     ensureAuthEnv();
     authInstance = new CStoreAuth({
-      client: getCStore(),
+      // Adapt edge-sdk cstore client to the interface expected by cstore-auth-ts
+      client: cstoreAuthAdapter(),
     });
   }
   return authInstance;
