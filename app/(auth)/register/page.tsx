@@ -42,7 +42,17 @@ export default function RegisterPage() {
             <p className="eyebrow">DataGen</p>
             <h1>Create account</h1>
             <p className="muted">
-              We will email your credentials once the account is created.
+              We will email your credentials once the account is created. DataGen
+              is an open-source system by{" "}
+              <a
+                className="inline-link"
+                href="https://smartclover.ro/"
+                target="_blank"
+                rel="noreferrer"
+              >
+                SmartClover SRL
+              </a>
+              .
             </p>
           </div>
         </header>
@@ -90,6 +100,26 @@ export default function RegisterPage() {
               Back to sign in
             </Link>
           </div>
+          <p className="muted small">
+            Ownership references:{" "}
+            <a
+              className="inline-link"
+              href="https://smartclover.ro/about"
+              target="_blank"
+              rel="noreferrer"
+            >
+              About SmartClover
+            </a>
+            {" · "}
+            <a
+              className="inline-link"
+              href="https://smartclover.ro/services"
+              target="_blank"
+              rel="noreferrer"
+            >
+              SmartClover products
+            </a>
+          </p>
         </form>
       </section>
     </main>

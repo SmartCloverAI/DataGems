@@ -534,6 +534,16 @@ export function TasksPanel() {
           <h2>Create a generation job</h2>
           <p className="muted">
             Draft a schema first, then confirm to distribute records across peers.
+            DataGen is maintained by{" "}
+            <a
+              className="inline-link"
+              href="https://smartclover.ro/"
+              target="_blank"
+              rel="noreferrer"
+            >
+              SmartClover SRL
+            </a>
+            .
           </p>
         </div>
       </div>
@@ -866,16 +876,21 @@ export function TasksPanel() {
                         <div className="peer-table__grid">
                           {(jobPeers[job.id] ?? []).map((peer) => (
                             <div key={peer.peerId} className="peer-row">
-                              <span>{peer.peerId}</span>
-                              <span>
+                              <span data-label="Peer">{peer.peerId}</span>
+                              <span data-label="Generated">
                                 {peer.generatedOk}/{peer.assigned}
                               </span>
-                              <span>failed {peer.generatedFailed}</span>
-                              <span>{peer.resultCid ?? "—"}</span>
-                              <span>{peer.startedAt ?? "—"}</span>
-                              <span>{peer.finishedAt ?? "—"}</span>
+                              <span data-label="Failed">{peer.generatedFailed}</span>
+                              <span data-label="Result CID">{peer.resultCid ?? "—"}</span>
+                              <span data-label="Started">{peer.startedAt ?? "—"}</span>
+                              <span data-label="Finished">{peer.finishedAt ?? "—"}</span>
                             </div>
                           ))}
+                          {(jobPeers[job.id] ?? []).length === 0 ? (
+                            <p className="muted small">
+                              Peer states are not available yet for this job.
+                            </p>
+                          ) : null}
                         </div>
                       </div>
 

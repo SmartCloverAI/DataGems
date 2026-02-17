@@ -53,6 +53,8 @@ a {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
   padding: 6px 0 0;
 }
 
@@ -89,6 +91,13 @@ a {
   letter-spacing: 0.02em;
 }
 
+.brand__owner {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+}
+
 .brand__version {
   margin: 0;
   font-size: 13px;
@@ -123,6 +132,7 @@ a {
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
 .panel__body {
@@ -157,6 +167,17 @@ a {
   font-size: 14px;
   color: var(--accent-strong);
   font-weight: 600;
+}
+
+.inline-link {
+  color: var(--accent-strong);
+  text-decoration: underline;
+  text-decoration-color: rgba(18, 54, 207, 0.35);
+  text-underline-offset: 2px;
+}
+
+.inline-link:hover {
+  text-decoration-color: currentColor;
 }
 
 .form {
@@ -209,6 +230,9 @@ a {
 }
 
 .button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border: 1px solid var(--accent-strong);
   color: #ffffff;
   background: linear-gradient(135deg, var(--accent), var(--accent-strong));
@@ -338,8 +362,9 @@ a {
   cursor: pointer;
   display: flex;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 16px;
-  align-items: center;
+  align-items: flex-start;
 }
 
 .job-card summary::-webkit-details-marker {
@@ -347,7 +372,8 @@ a {
 }
 
 .job-progress {
-  min-width: 160px;
+  min-width: 220px;
+  flex: 1 1 260px;
   text-align: right;
 }
 
@@ -378,10 +404,16 @@ a {
 
 .peer-row {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 2fr 1fr 1fr;
+  grid-template-columns: minmax(100px, 0.9fr) repeat(5, minmax(0, 1fr));
   gap: 8px;
   font-size: 13px;
   color: var(--muted);
+  align-items: center;
+}
+
+.peer-row span {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .download-row {
@@ -556,11 +588,65 @@ a {
 .task__buttons {
   display: flex;
   gap: 8px;
+  flex-wrap: wrap;
+}
+
+.site-footer {
+  margin-top: 8px;
+  padding: 16px 2px 0;
+  border-top: 1px solid rgba(233, 237, 242, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.site-footer__links {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 960px) {
+  .topbar {
+    align-items: flex-start;
+  }
+
+  .pill {
+    max-width: 100%;
+  }
+
+  .job-card summary {
+    flex-direction: column;
+  }
+
+  .job-progress {
+    width: 100%;
+    min-width: 0;
+    text-align: left;
+  }
+
+  .peer-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px 14px;
+  }
 }
 
 @media (max-width: 720px) {
+  .app-shell {
+    padding: 18px 12px 30px;
+    gap: 18px;
+  }
+
+  .topbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
   .panel {
-    padding: 22px;
+    padding: 20px 16px;
+    border-radius: 16px;
   }
 
   .panel__header {
@@ -569,10 +655,51 @@ a {
 
   .panel__actions {
     width: 100%;
-    justify-content: space-between;
+    justify-content: flex-start;
   }
 
   .brand {
-    padding: 10px 10px;
+    padding: 10px;
+    width: 100%;
+  }
+
+  .summary-grid {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  }
+
+  .peer-row {
+    grid-template-columns: 1fr;
+    gap: 6px;
+    padding: 10px;
+    border: 1px solid var(--panel-border);
+    border-radius: 10px;
+    background: #f9fbff;
+  }
+
+  .peer-row span {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 12px;
+  }
+
+  .peer-row span::before {
+    content: attr(data-label);
+    font-weight: 700;
+    color: var(--text);
+    flex-shrink: 0;
+  }
+
+  .task__buttons {
+    width: 100%;
+  }
+
+  .task__buttons .button {
+    flex: 1 1 170px;
+  }
+
+  .site-footer {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }

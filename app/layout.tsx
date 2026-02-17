@@ -16,7 +16,8 @@ const robotoMono = Roboto_Mono({
 
 export const metadata: Metadata = {
   title: "DataGen",
-  description: "Generate synthetic datasets with one-call-per-record inference.",
+  description:
+    "Generate synthetic datasets with one-call-per-record inference. Open-source system by SmartClover SRL.",
 };
 
 export default async function RootLayout({
@@ -42,12 +43,54 @@ export default async function RootLayout({
               />
               <div className="brand__copy">
                 <p className="brand__tagline">Synthetic dataset generator</p>
+                <p className="brand__owner">
+                  Open source by{" "}
+                  <a
+                    className="inline-link"
+                    href="https://smartclover.ro/"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    SmartClover SRL
+                  </a>
+                </p>
                 <p className="brand__version">Version {version}</p>
               </div>
             </div>
             <div className="pill">CStore-secured workspace</div>
           </header>
           {children}
+          <footer className="site-footer">
+            <p className="muted small">
+              DataGen is maintained by SmartClover SRL.
+            </p>
+            <div className="site-footer__links">
+              <a
+                className="inline-link"
+                href="https://smartclover.ro/"
+                target="_blank"
+                rel="noreferrer"
+              >
+                smartclover.ro
+              </a>
+              <a
+                className="inline-link"
+                href="https://smartclover.ro/about"
+                target="_blank"
+                rel="noreferrer"
+              >
+                About
+              </a>
+              <a
+                className="inline-link"
+                href="https://smartclover.ro/services"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Products
+              </a>
+            </div>
+          </footer>
         </div>
       </body>
     </html>
