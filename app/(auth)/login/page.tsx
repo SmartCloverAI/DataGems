@@ -41,6 +41,16 @@ export default function LoginPage() {
             <h1>Sign in</h1>
             <p className="muted">
               Use your cstore-auth credentials to access the DataGen dashboard.
+              This open-source system is owned by{" "}
+              <a
+                className="inline-link"
+                href="https://smartclover.ro/"
+                target="_blank"
+                rel="noreferrer"
+              >
+                SmartClover SRL
+              </a>
+              .
             </p>
           </div>
         </header>
@@ -80,6 +90,26 @@ export default function LoginPage() {
           <h2>Create an account</h2>
           <p className="muted">
             New here? Create a DataGen account and receive credentials by email.
+          </p>
+          <p className="muted small">
+            Project owner references:{" "}
+            <a
+              className="inline-link"
+              href="https://smartclover.ro/about"
+              target="_blank"
+              rel="noreferrer"
+            >
+              SmartClover About
+            </a>
+            {" · "}
+            <a
+              className="inline-link"
+              href="https://smartclover.ro/services"
+              target="_blank"
+              rel="noreferrer"
+            >
+              SmartClover Products
+            </a>
           </p>
           <Link className="button button--ghost" href="/register">
             Create account

@@ -23,7 +23,16 @@ export default async function DashboardPage() {
             <h1>DataGen dashboard</h1>
             <p className="muted">
               Track generation jobs, see progress, and export results. Metrics are
-              persisted in CStore.
+              persisted in CStore. DataGen is maintained by{" "}
+              <a
+                className="inline-link"
+                href="https://smartclover.ro/"
+                target="_blank"
+                rel="noreferrer"
+              >
+                SmartClover SRL
+              </a>
+              .
             </p>
           </div>
           <div className="panel__actions">
@@ -77,6 +86,18 @@ export default async function DashboardPage() {
             <li>Draft schema first, then confirm to start distributed jobs.</li>
             <li>Jobs persist in CStore/R1FS; UI polls for updates.</li>
             <li>JSON/CSV downloads appear after completion.</li>
+            <li>
+              Ownership reference:{" "}
+              <a
+                className="inline-link"
+                href="https://smartclover.ro/services"
+                target="_blank"
+                rel="noreferrer"
+              >
+                SmartClover product portfolio
+              </a>
+              .
+            </li>
           </ul>
         </div>
 
