@@ -16,7 +16,7 @@ Your job: output exactly ONE JSON OBJECT instance that conforms to the provided 
 Hard output rules (must follow all):
 - Output MUST be strict JSON (RFC 8259): double quotes only, no trailing commas, no comments, no NaN/Infinity, no unquoted keys.
 - Output MUST be a single JSON object at the top level. (Arrays/objects may appear as field values if the schema requires.)
-- Output ONLY the JSON object: no markdown, no code fences, no prose, no extra whitespace before/after.
+- Output ONLY the JSON object: no markdown, no code fences, no prose.
 - If a schema is provided, treat it as the contract:
   - Include every required property.
   - Use the exact property names from the schema.
@@ -45,7 +45,7 @@ Your job: output exactly ONE JSON OBJECT instance that conforms to the schema.
 Hard output rules:
 - Output MUST be strict JSON (RFC 8259): double quotes only, no trailing commas, no comments, no NaN/Infinity, no unquoted keys.
 - Output MUST be a single JSON object at the top level.
-- Output ONLY the JSON object: no markdown, no code fences, no prose, no leading/trailing whitespace.
+- Output ONLY the JSON object: no markdown, no code fences, no prose.
 
 Schema adherence (if schema is provided):
 - Include every required property.
@@ -86,6 +86,7 @@ Hard rules:
 - Mark fields as required unless the user clearly implies optional.
 - Use constraints when helpful: enum, minimum/maximum, minLength/maxLength, pattern, minItems/maxItems, format (date, date-time, email, uri), etc.
 - Keep descriptions brief (<= 12 words each). Do NOT include example instances or "examples" fields.
+- NEVER include sample data values in "properties". Each property value MUST be a JSON Schema object with a "type" field.
 
 If the user request is underspecified, choose sensible minimal fields that still satisfy the intent.
 `.trim();
@@ -104,6 +105,7 @@ Hard rules:
   - Use "label" as a string for single-label tasks; use an array of strings for multi-label tasks.
 - Prefer adding a required "record_id" string field (unique id), unless the user explicitly forbids it.
 - Keep descriptions brief (<= 12 words). Do NOT include example instances or "examples" fields.
+- NEVER include sample data values in "properties". Each property value MUST be a JSON Schema object with a "type" field.
 
 Dataset quality rules:
 - Do not put the label inside other fields by design (avoid properties like "is_spam" if "label" already exists).
@@ -111,6 +113,39 @@ Dataset quality rules:
 
 Use constraints when helpful: enum, minimum/maximum, minLength/maxLength, pattern, format, minItems/maxItems, etc.
 `.trim();
+
+export const JSON_SCHEMA_DRAFT_2020_12_META_SCHEMA = {
+  $schema: "https://json-schema.org/draft/2020-12/schema",
+  $id: "https://json-schema.org/draft/2020-12/schema",
+  title: "JSON Schema Meta-Schema (draft 2020-12)",
+  type: "object",
+  required: ["type", "properties", "required", "additionalProperties"],
+  properties: {
+    $id: { type: "string" },
+    title: { type: "string" },
+    description: { type: "string" },
+    type: {
+      anyOf: [
+        { type: "string" },
+        { type: "array", items: { type: "string" } },
+      ],
+    },
+    properties: { type: "object" },
+    required: { type: "array", items: { type: "string" } },
+    additionalProperties: { type: ["boolean", "object"] },
+    items: { type: ["object", "array"] },
+    enum: { type: "array" },
+    minimum: { type: "number" },
+    maximum: { type: "number" },
+    minLength: { type: "number" },
+    maxLength: { type: "number" },
+    minItems: { type: "number" },
+    maxItems: { type: "number" },
+    pattern: { type: "string" },
+    format: { type: "string" },
+  },
+  additionalProperties: true,
+} as const;
 
 export const MAX_RECORDS_PER_JOB =
   optionalNumberEnv("DATAGEN_MAX_RECORDS_PER_JOB", 200) ?? 200;

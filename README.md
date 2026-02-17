@@ -43,7 +43,7 @@ npm install
 npm run dev
 ```
 
-## Environment Variables
+## Environment variables
 
 - `EE_CHAINSTORE_API_HOST` / `EE_CHAINSTORE_API_PORT` (required): Ratio1 CStore endpoint (fallback: `EE_CHAINSTORE_API_URL`).
 - `EE_R1FS_API_HOST` / `EE_R1FS_API_PORT` (optional): Ratio1 file store (fallback: `EE_R1FS_API_URL`, not used yet).
@@ -54,6 +54,7 @@ npm run dev
 - `DATAGEN_APP_HOST` / `DATAGEN_APP_PORT`: Public app host/port (fallback: `DATAGEN_APP_URL`).
 - `DATAGEN_INFERENCE_HOST` / `DATAGEN_INFERENCE_PORT`: Inference gateway host/port (fallback: `DATAGEN_INFERENCE_BASE_URL`).
 - `LOG_INFERENCE_REQUESTS`: When `true`, logs outgoing inference requests (auth header redacted).
+- `DATAGEN_LOG_R1FS_CALLS`: When `true`, logs R1FS upload/download start/success/error events.
 - `RETRY_INFERENCE_ON_FAILURE`: When `true`, retries one extra inference call on failure/parse errors.
 - `NEXT_PUBLIC_SHOW_FAILURES`: When `true`, shows failure counts in UI task cards.
 - `DATAGEN_MAX_RECORDS_PER_JOB`: Max records per job (default `200`).
@@ -69,7 +70,7 @@ npm run dev
 - `GET /api/auth/me`: Returns current session (`401` when missing/invalid).
 - `GET /api/metrics`: Auth-protected metrics from persisted CStore counters.
 
-## Project Layout
+## Project layout (high level)
 
 ```text
 app/

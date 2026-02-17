@@ -36,9 +36,9 @@ function parseMetrics(raw: unknown): Metrics | null {
 export async function readMetrics(): Promise<Metrics> {
   const cstore = getCStore();
   try {
-    const existing = await cstore.getValue({ key: METRICS_KEY });
-    if (existing.success && existing.result) {
-      const parsed = parseMetrics(JSON.parse(existing.result));
+    const raw = await cstore.getValue({ key: METRICS_KEY });
+    if (raw) {
+      const parsed = parseMetrics(JSON.parse(raw));
       if (parsed) return parsed;
     }
   } catch (err) {

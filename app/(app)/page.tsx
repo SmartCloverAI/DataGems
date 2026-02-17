@@ -74,9 +74,9 @@ export default async function DashboardPage() {
         <div className="panel__body">
           <h2>Next up</h2>
           <ul className="list">
-            <li>Live jobs are persisted in CStore; UI polls every ~1.5s.</li>
-            <li>JSON/CSV downloads are available after completion.</li>
-            <li>Authentication enforced via cstore-auth session cookie.</li>
+            <li>Draft schema first, then confirm to start distributed jobs.</li>
+            <li>Jobs persist in CStore/R1FS; UI polls for updates.</li>
+            <li>JSON/CSV downloads appear after completion.</li>
           </ul>
         </div>
 

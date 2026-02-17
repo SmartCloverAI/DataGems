@@ -1,7 +1,7 @@
 import { optionalNumberEnv } from "@/lib/env";
 
-const DEFAULT_ACTIVE_POLL_SECONDS = 2;
-const DEFAULT_IDLE_POLL_SECONDS = 10;
+const DEFAULT_ACTIVE_POLL_SECONDS = 10;
+const DEFAULT_IDLE_POLL_SECONDS = 30;
 
 export const ACTIVE_POLL_SECONDS =
   optionalNumberEnv("DATAGEN_ACTIVE_POLL_SECONDS", DEFAULT_ACTIVE_POLL_SECONDS) ??
