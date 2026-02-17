@@ -3,8 +3,8 @@ const store: Record<string, string> = {};
 vi.mock("@/lib/ratio1/client", () => ({
   getCStore: () => ({
     async getValue({ key }: { key: string }) {
-      if (store[key]) return { success: true, result: store[key] };
-      return { success: false, error: "missing" };
+      if (store[key]) return store[key];
+      return null;
     },
     async setValue({
       key,

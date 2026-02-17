@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { FormEvent, useState } from "react";
 
 export default function LoginPage() {
@@ -9,12 +10,6 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [signupUsername, setSignupUsername] = useState("");
-  const [signupPassword, setSignupPassword] = useState("");
-  const [signupLoading, setSignupLoading] = useState(false);
-  const [signupError, setSignupError] = useState<string | null>(null);
-  const [signupSuccess, setSignupSuccess] = useState<string | null>(null);
-
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     setLoading(true);
@@ -35,34 +30,6 @@ export default function LoginPage() {
     const data = await response.json().catch(() => null);
     setError(data?.error ?? "Login failed");
     setLoading(false);
-  };
-
-  const handleSignup = async (event: FormEvent) => {
-    event.preventDefault();
-    setSignupLoading(true);
-    setSignupError(null);
-    setSignupSuccess(null);
-
-    const response = await fetch("/api/auth/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        username: signupUsername,
-        password: signupPassword,
-      }),
-    });
-
-    const data = await response.json().catch(() => null);
-    if (!response.ok) {
-      setSignupError(data?.error ?? "Could not create account");
-      setSignupLoading(false);
-      return;
-    }
-
-    setSignupSuccess("Account created. Redirecting...");
-    setSignupLoading(false);
-    router.push("/");
-    router.refresh();
   };
 
   return (
@@ -112,43 +79,11 @@ export default function LoginPage() {
         <div className="panel__body">
           <h2>Create an account</h2>
           <p className="muted">
-            New here? Create your own account. You’ll be signed in automatically after
-            signup.
+            New here? Create a DataGen account and receive credentials by email.
           </p>
-          <form className="form" onSubmit={handleSignup}>
-            <label className="field">
-              <span>Username</span>
-              <input
-                name="signup-username"
-                autoComplete="username"
-                value={signupUsername}
-                minLength={3}
-                maxLength={64}
-                onChange={(e) => setSignupUsername(e.target.value)}
-                required
-              />
-            </label>
-
-            <label className="field">
-              <span>Password</span>
-              <input
-                name="signup-password"
-                type="password"
-                autoComplete="new-password"
-                value={signupPassword}
-                minLength={8}
-                onChange={(e) => setSignupPassword(e.target.value)}
-                required
-              />
-            </label>
-
-            {signupError ? <p className="error">{signupError}</p> : null}
-            {signupSuccess ? <p className="muted">{signupSuccess}</p> : null}
-
-            <button className="button button--ghost" type="submit" disabled={signupLoading}>
-              {signupLoading ? "Creating..." : "Create account"}
-            </button>
-          </form>
+          <Link className="button button--ghost" href="/register">
+            Create account
+          </Link>
         </div>
       </section>
     </main>

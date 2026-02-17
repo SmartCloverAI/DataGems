@@ -1,24 +1,21 @@
-type Success<T> = { success: true; result: T };
-type Failure = { success: false; error: string };
-
 type CStoreValue = string | undefined;
 
 class MockCStore {
   private kv = new Map<string, string>();
   private hashes = new Map<string, Map<string, string>>();
 
-  async getStatus(): Promise<Success<boolean>> {
-    return { success: true, result: true };
+  async getStatus(): Promise<boolean> {
+    return true;
   }
 
-  async setValue({ key, value }: { key: string; value: string }): Promise<Success<boolean>> {
+  async setValue({ key, value }: { key: string; value: string }): Promise<boolean> {
     this.kv.set(key, value);
-    return { success: true, result: true };
+    return true;
   }
 
-  async getValue({ key }: { key: string }): Promise<Success<CStoreValue> | Failure> {
-    if (!this.kv.has(key)) return { success: false, error: "missing" };
-    return { success: true, result: this.kv.get(key) };
+  async getValue({ key }: { key: string }): Promise<CStoreValue | null> {
+    if (!this.kv.has(key)) return null;
+    return this.kv.get(key) ?? null;
   }
 
   private ensureHash(hkey: string) {
@@ -36,10 +33,10 @@ class MockCStore {
     hkey: string;
     key: string;
     value: string;
-  }): Promise<Success<boolean>> {
+  }): Promise<boolean> {
     const hash = this.ensureHash(hkey);
     hash.set(key, value);
-    return { success: true, result: true };
+    return true;
   }
 
   async hget({
@@ -48,20 +45,93 @@ class MockCStore {
   }: {
     hkey: string;
     key: string;
-  }): Promise<Success<CStoreValue> | Failure> {
+  }): Promise<CStoreValue | null> {
     const hash = this.hashes.get(hkey);
-    if (!hash || !hash.has(key)) return { success: false, error: "missing" };
-    return { success: true, result: hash.get(key) };
+    if (!hash || !hash.has(key)) return null;
+    return hash.get(key) ?? null;
   }
 
-  async hgetall({ hkey }: { hkey: string }): Promise<Success<{ keys: string[] }> | Failure> {
+  async hgetall({ hkey }: { hkey: string }): Promise<Record<string, string>> {
     const hash = this.hashes.get(hkey);
-    if (!hash) return { success: true, result: { keys: [] } };
-    return { success: true, result: { keys: Array.from(hash.keys()) } };
+    if (!hash) return {};
+    return Object.fromEntries(hash.entries());
   }
 }
 
 export const mockCStore = new MockCStore();
+
+type MockR1File = {
+  filename?: string;
+  data: Buffer;
+};
+
+class MockR1fs {
+  private files = new Map<string, MockR1File>();
+  private cidCounter = 0;
+
+  private nextCid() {
+    this.cidCounter += 1;
+    return `mock_cid_${this.cidCounter.toString(16)}`;
+  }
+
+  async addJson({ data }: { data: Record<string, any> }) {
+    const cid = this.nextCid();
+    const payload = Buffer.from(JSON.stringify(data, null, 2), "utf8");
+    this.files.set(cid, { data: payload, filename: "data.json" });
+    return { cid };
+  }
+
+  async addFile({
+    file,
+    filename,
+  }: {
+    file?: Buffer | string;
+    filename?: string;
+  }) {
+    const cid = this.nextCid();
+    let payload = Buffer.alloc(0);
+    if (Buffer.isBuffer(file)) {
+      payload = file;
+    } else if (typeof file === "string") {
+      payload = Buffer.from(file, "utf8");
+    }
+    this.files.set(cid, { data: payload, filename });
+    return { cid, message: "ok" };
+  }
+
+  async addFileBase64({
+    file_base64_str,
+    filename,
+  }: {
+    file_base64_str: string;
+    filename?: string;
+  }) {
+    const cid = this.nextCid();
+    const payload = Buffer.from(file_base64_str, "base64");
+    this.files.set(cid, { data: payload, filename });
+    return { cid, message: "ok" };
+  }
+
+  async getFile({ cid }: { cid: string }) {
+    const file = this.files.get(cid);
+    if (!file) return {};
+    return {
+      file_data: file.data.toString("utf8"),
+      filename: file.filename,
+    };
+  }
+
+  async getFileBase64({ cid }: { cid: string }) {
+    const file = this.files.get(cid);
+    if (!file) return {};
+    return {
+      file_base64_str: file.data.toString("base64"),
+      filename: file.filename,
+    };
+  }
+}
+
+export const mockR1fs = new MockR1fs();
 
 type MockUser = {
   username: string;

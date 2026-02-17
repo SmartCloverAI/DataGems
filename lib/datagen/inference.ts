@@ -5,6 +5,7 @@ import {
   INFERENCE_BASE_URL,
   DATASET_RECORD_SYSTEM_PROMPT,
   DATASET_SCHEMA_SYSTEM_PROMPT,
+  JSON_SCHEMA_DRAFT_2020_12_META_SCHEMA,
   SCHEMA_SYSTEM_PROMPT,
   SYSTEM_PROMPT,
 } from "./constants";
@@ -22,6 +23,7 @@ type InferenceConfig = {
   apiKey?: string;
   model?: string;
   path?: string;
+  parameters?: Record<string, unknown>;
 };
 
 const mockInferenceMode = envFlag("DATAGEN_MOCK_INFERENCE_API");
@@ -270,6 +272,9 @@ async function callInference(
   if (config.model) {
     requestBody.model = config.model;
   }
+  if (config.parameters && Object.keys(config.parameters).length > 0) {
+    Object.assign(requestBody, config.parameters);
+  }
 
   const maxAttempts = retryInferenceOnFailure ? 2 : 1;
   let lastError: Error | null = null;
@@ -307,7 +312,8 @@ async function callInference(
       let parseError: Error | null = null;
       let resultErrorMessage: string | null = null;
       try {
-        const payload = data?.result?.FULL_OUTPUT ?? data;
+        const rawFull = data?.result?.FULL_OUTPUT ?? data;
+        const payload = Array.isArray(rawFull) ? rawFull[0] : rawFull;
         const result = data?.result;
         const statusValue =
           typeof result?.status === "string" ? result.status.toLowerCase() : null;
@@ -332,8 +338,11 @@ async function callInference(
         } else {
           // Last resort: try TEXT_RESPONSE if provided.
           const textResponse = data?.result?.TEXT_RESPONSE;
-          if (typeof textResponse === "string") {
-            output = parseJsonContent(textResponse);
+          const textCandidate = Array.isArray(textResponse)
+            ? textResponse[0]
+            : textResponse;
+          if (typeof textCandidate === "string") {
+            output = parseJsonContent(textCandidate);
           } else {
             throw new Error("Inference response missing content");
           }
@@ -406,13 +415,32 @@ export async function generateRecordSchema(
       role: "system",
       content: datasetMode ? DATASET_SCHEMA_SYSTEM_PROMPT : SCHEMA_SYSTEM_PROMPT,
     },
-    { role: "user", content: prompt },
+    {
+      role: "user",
+      content: [
+        prompt,
+        "",
+        "Return ONLY the JSON Schema object.",
+        "Do NOT include example values inside properties.",
+        "Every property value must be a JSON Schema object with a type field.",
+      ].join("\n"),
+    },
   ];
 
   const { output, failedAttempts } = await callInference(
     messages,
     "schema",
-    config,
+    {
+      ...config,
+      parameters: {
+        temperature: 0.2,
+        ...(config.parameters ?? {}),
+        response_format: {
+          type: "json_object",
+          schema: JSON_SCHEMA_DRAFT_2020_12_META_SCHEMA,
+        },
+      },
+    },
   );
   return { schema: output, failedAttempts };
 }
@@ -439,7 +467,9 @@ export async function generateRecord(
     { role: "user", content: prompt },
   ];
 
-  if (schema) {
+  let responseFormat: Record<string, unknown> | undefined;
+  if (schema && typeof schema === "object" && !Array.isArray(schema)) {
+    responseFormat = { type: "json_object", schema };
     messages.push({
       role: "user",
       content: [
@@ -453,7 +483,13 @@ export async function generateRecord(
   const { output, failedAttempts } = await callInference(
     messages,
     "record",
-    config,
+    {
+      ...config,
+      parameters: {
+        ...(config.parameters ?? {}),
+        response_format: responseFormat ?? { type: "json_object" },
+      },
+    },
   );
   let record = output;
 
