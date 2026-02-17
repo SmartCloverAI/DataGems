@@ -50,7 +50,7 @@ Keep the existing vars in AGENTS.md fileciteturn1file2 and add:
 - `R1EN_CHAINSTORE_PEERS` *(required)*
   - A delimited list of peer identifiers (e.g., comma-separated).
   - Used to split `totalRecords` across peers.
-- `DATAGEN_PEER_ID` *(required)*
+- `R1EN_HOST_ADDR` *(required)*
   - The current instance’s peer id (must match one entry in `R1EN_CHAINSTORE_PEERS`).
   - If missing, fail fast at startup.
 
@@ -562,7 +562,7 @@ If jobs can get large, implement streaming export:
 ### 12.1 Local multi-instance
 - Run 2–3 DataGen instances pointed at the same CStore/R1FS endpoints.
 - Set `R1EN_CHAINSTORE_PEERS=peerA,peerB,peerC`
-- Start each container with its own `DATAGEN_PEER_ID` and its own inference API.
+- Start each container with its own `R1EN_HOST_ADDR` and its own inference API.
 
 Validate:
 - Confirmed job splits evenly.
@@ -584,7 +584,7 @@ Validate:
 ## 13) Open items / assumptions (explicit)
 
 1. **Exact delimiter** for `R1EN_CHAINSTORE_PEERS` is assumed to be comma-separated.
-2. **Peer identity** is provided via `DATAGEN_PEER_ID` (must match peers list).
+2. **Peer identity** is provided via `R1EN_HOST_ADDR` (must match peers list).
 3. R1FS client supports “add file” and “get file” operations as described in Ratio1 SDK docs/blogs. citeturn23view0turn23view1
 4. `@ratio1/cstore-auth-ts` supports programmatic user creation (Codex should adapt by mirroring current `/api/auth/register` implementation and swapping inputs). fileciteturn1file0
 

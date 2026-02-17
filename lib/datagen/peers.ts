@@ -47,9 +47,9 @@ export function getPeerList(): string[] {
 }
 
 export function getPeerId(): string {
-  const peerId = requiredEnv("DATAGEN_PEER_ID").trim();
+  const peerId = requiredEnv("R1EN_HOST_ADDR").trim();
   if (!peerId) {
-    throw new Error("DATAGEN_PEER_ID is required");
+    throw new Error("R1EN_HOST_ADDR is required");
   }
   return peerId;
 }
@@ -58,7 +58,7 @@ export function ensurePeerConfig() {
   const peers = getPeerList();
   const peerId = getPeerId();
   if (!peers.includes(peerId)) {
-    throw new Error(`DATAGEN_PEER_ID ${peerId} not in R1EN_CHAINSTORE_PEERS`);
+    throw new Error(`R1EN_HOST_ADDR ${peerId} not in R1EN_CHAINSTORE_PEERS`);
   }
   return { peers, peerId };
 }

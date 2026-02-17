@@ -82,7 +82,7 @@ vi.mock("@/lib/datagen/userSettings", () => ({
 describe("jobWorker failure path", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    process.env.DATAGEN_PEER_ID = "peerA";
+    process.env.R1EN_HOST_ADDR = "peerA";
     process.env.DATAGEN_LOCAL_CACHE_DIR = "/tmp/datagen-jobworker-tests";
     rmSync("/tmp/datagen-jobworker-tests", { recursive: true, force: true });
   });
