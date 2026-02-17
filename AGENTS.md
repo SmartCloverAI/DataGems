@@ -107,7 +107,7 @@ DataGen is a **full-stack TypeScript web app + API** for generating synthetic da
 
 ### Multi-instance / peer identity
 - `R1EN_CHAINSTORE_PEERS` (comma-separated peer ids OR JSON array string, e.g. `["peerA","peerB"]`)
-- `DATAGEN_PEER_ID` (must match one entry in `R1EN_CHAINSTORE_PEERS`)
+- `R1EN_HOST_ADDR` (must match one entry in `R1EN_CHAINSTORE_PEERS`)
 
 ### Worker behavior
 - `DATAGEN_JOB_POLL_SECONDS` (default 2)
