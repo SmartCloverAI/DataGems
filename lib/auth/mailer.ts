@@ -55,9 +55,9 @@ export async function sendSignupEmail(opts: {
   await transporter.sendMail({
     from: config.from,
     to: opts.to,
-    subject: "Your DataGen account credentials",
+    subject: "Your DataGems account credentials",
     text:
-      `Welcome to DataGen!\n\n` +
+      `Welcome to DataGems!\n\n` +
       `Username: ${opts.username}\n` +
       `Password: ${opts.password}\n\n` +
       `Please sign in and change your password if needed.\n`,

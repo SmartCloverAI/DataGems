@@ -1,8 +1,11 @@
 import Image from "next/image";
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import { Mona_Sans, Roboto_Mono } from "next/font/google";
 import "./globals.css";
 import { getAppVersion } from "@/lib/version";
+import { LogoutButton } from "@/components/LogoutButton";
+import { getSessionFromCookies } from "@/lib/auth/session";
 
 const monaSans = Mona_Sans({
   variable: "--font-mona-sans",
@@ -15,7 +18,7 @@ const robotoMono = Roboto_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "DataGen",
+  title: "DataGems",
   description:
     "Generate synthetic datasets with one-call-per-record inference. Open-source system by SmartClover SRL.",
 };
@@ -25,7 +28,10 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const version = await getAppVersion();
+  const [version, session] = await Promise.all([
+    getAppVersion(),
+    getSessionFromCookies(cookies()),
+  ]);
 
   return (
     <html lang="en">
@@ -34,8 +40,8 @@ export default async function RootLayout({
           <header className="topbar">
             <div className="brand">
               <Image
-                src="/datagenLogo.svg"
-                alt="DataGen logo"
+                src="/datagems.svg"
+                alt="DataGems logo"
                 width={180}
                 height={32}
                 className="brand__logo"
@@ -57,12 +63,21 @@ export default async function RootLayout({
                 <p className="brand__version">Version {version}</p>
               </div>
             </div>
-            <div className="pill">CStore-secured workspace</div>
+            {session ? (
+              <div className="panel__actions">
+                <div className="pill">
+                  Signed in as <strong>{session.username}</strong>
+                </div>
+                <LogoutButton />
+              </div>
+            ) : (
+              <div className="pill">CStore-secured workspace</div>
+            )}
           </header>
           {children}
           <footer className="site-footer">
             <p className="muted small">
-              DataGen is maintained by SmartClover SRL.
+              DataGems is maintained by SmartClover SRL.
             </p>
             <div className="site-footer__links">
               <a

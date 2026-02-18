@@ -37,10 +37,10 @@ export default function LoginPage() {
       <section className="panel">
         <header className="panel__header">
           <div>
-            <p className="eyebrow">DataGen</p>
+            <p className="eyebrow">DataGems</p>
             <h1>Sign in</h1>
             <p className="muted">
-              Use your cstore-auth credentials to access the DataGen dashboard.
+              Use your cstore-auth credentials to access the DataGems dashboard.
               This open-source system is owned by{" "}
               <a
                 className="inline-link"
@@ -89,7 +89,7 @@ export default function LoginPage() {
         <div className="panel__body">
           <h2>Create an account</h2>
           <p className="muted">
-            New here? Create a DataGen account and receive credentials by email.
+            New here? Create a DataGems account and receive credentials by email.
           </p>
           <p className="muted small">
             Project owner references:{" "}

@@ -39,10 +39,10 @@ export default function RegisterPage() {
       <section className="panel">
         <header className="panel__header">
           <div>
-            <p className="eyebrow">DataGen</p>
+            <p className="eyebrow">DataGems</p>
             <h1>Create account</h1>
             <p className="muted">
-              We will email your credentials once the account is created. DataGen
+              We will email your credentials once the account is created. DataGems
               is an open-source system by{" "}
               <a
                 className="inline-link"

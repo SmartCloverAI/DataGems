@@ -1,4 +1,4 @@
-# DataGen Update Plan — Multi‑Instance + CStore/R1FS Jobs + Signup-by-Email
+# DataGems Update Plan — Multi‑Instance + CStore/R1FS Jobs + Signup-by-Email
 
 This document refines the requested specifications into an implementation-ready plan for Codex.
 
@@ -8,7 +8,7 @@ Source of truth for current architecture: **AGENTS.md** fileciteturn1file0
 
 ## 0) Goal (what changes)
 
-DataGen becomes a **multi-instance** application where **multiple identical app replicas** collaborate on generating one synthetic dataset job by coordinating **only** through:
+DataGems becomes a **multi-instance** application where **multiple identical app replicas** collaborate on generating one synthetic dataset job by coordinating **only** through:
 
 - **CStore**: lightweight shared job state + progress counters
 - **R1FS**: heavy/large job artifacts (schema + instructions + per-peer results)
@@ -37,7 +37,7 @@ Each instance:
   - uploads final peer result to R1FS once finished, then stores its result CID in CStore
 
 ### 1.3 No direct peer comms
-- No HTTP calls between DataGen instances.
+- No HTTP calls between DataGems instances.
 - “Coordination” = write/read to/from CStore and R1FS only.
 
 ---
@@ -54,7 +54,7 @@ Keep the existing vars in AGENTS.md fileciteturn1file2 and add:
   - The current instance’s peer id (must match one entry in `R1EN_CHAINSTORE_PEERS`).
   - If missing, fail fast at startup.
 
-> Reason: A DataGen “instance” needs a stable identity to know which slice it owns.
+> Reason: A DataGems “instance” needs a stable identity to know which slice it owns.
 
 ### 2.2 Worker behavior
 - `DATAGEN_JOB_POLL_SECONDS` *(default: 5)* — how often to poll CStore for new work
@@ -64,7 +64,7 @@ Keep the existing vars in AGENTS.md fileciteturn1file2 and add:
 ### 2.3 Local cache/resume
 - `DATAGEN_LOCAL_CACHE_DIR` *(default: `/_local_cache/datagen`)*
   - Should be on a persistent volume in containerized deployments.
-  - DataGen writes job/peer progress + partial results here.
+  - DataGems writes job/peer progress + partial results here.
 
 ---
 
@@ -113,15 +113,15 @@ Keep existing prefix convention fileciteturn1file3 and add:
 - **Jobs table**
   - `datagen:jobs` (hash)  
     - field: `{jobId}`  
-    - value: JSON string of `DataGenJobBase`
+    - value: JSON string of `DataGemsJobBase`
 - **Per-job peer table**
   - `datagen:job:{jobId}:peers` (hash)  
     - field: `{peerId}`  
-    - value: JSON string of `DataGenJobPeerState`
+    - value: JSON string of `DataGemsJobPeerState`
 - **Users table (job lists)**
   - `datagen:users` (hash)  
     - field: `{username}`  
-    - value: JSON string of `DataGenUserIndex`
+    - value: JSON string of `DataGemsUserIndex`
   - `datagen:user:{username}:jobs` (hash OR JSON array under a single key)
     - Minimal: hash field `{jobId}` -> `{"createdAt": "...", "title": "...", "status": "..."}`
     - This becomes the “list of job ids” required by spec.
@@ -134,7 +134,7 @@ Keep existing prefix convention fileciteturn1file3 and add:
 ```ts
 type JobStatus = "queued" | "running" | "succeeded" | "failed";
 
-type DataGenJobBase = {
+type DataGemsJobBase = {
   id: string;
   owner: string;                 // username
   title: string;
@@ -174,7 +174,7 @@ type DataGenJobBase = {
 
 #### 4.2.2 Peer state (stored in `datagen:job:{id}:peers`)
 ```ts
-type DataGenJobPeerState = {
+type DataGemsJobPeerState = {
   peerId: string;
 
   // assignment
@@ -200,7 +200,7 @@ type DataGenJobPeerState = {
 
 #### 4.2.3 Users table entries
 ```ts
-type DataGenUserIndex = {
+type DataGemsUserIndex = {
   username: string;
   email?: string;
   name?: string;
@@ -229,11 +229,11 @@ Store each peer assignment in `datagen:job:{id}:peers` hash.
 ### 5.1 Job details object (one per job)
 Stored only after schema is confirmed.
 
-**R1FS CID** stored in `DataGenJobBase.jobDetailsCid`.
+**R1FS CID** stored in `DataGemsJobBase.jobDetailsCid`.
 
 Suggested JSON structure (store as a JSON file or YAML; JSON recommended for TS parsing):
 ```ts
-type DataGenJobDetails = {
+type DataGemsJobDetails = {
   id: string;
   owner: string;
 
@@ -273,7 +273,7 @@ Recommended file format: **JSONL** (append-only, good for resume):
   or  
   `{"i": 17, "ok": false, "error": "..."}"`
 
-At completion, upload the JSONL file as-is to R1FS and store CID in `DataGenJobPeerState.resultCid`.
+At completion, upload the JSONL file as-is to R1FS and store CID in `DataGemsJobPeerState.resultCid`.
 
 ---
 
@@ -331,10 +331,10 @@ Behavior:
 1. Verify token signature + TTL.
 2. Compute peer assignments from `R1EN_CHAINSTORE_PEERS`.
 3. Write to **R1FS**:
-   - Upload `DataGenJobDetails` JSON -> `jobDetailsCid`
+   - Upload `DataGemsJobDetails` JSON -> `jobDetailsCid`
 4. Write to **CStore**:
-   - `HSET datagen:jobs {jobId} <DataGenJobBase>`
-   - `HSET datagen:job:{jobId}:peers {peerId} <DataGenJobPeerState>` for each peer
+   - `HSET datagen:jobs {jobId} <DataGemsJobBase>`
+   - `HSET datagen:job:{jobId}:peers {peerId} <DataGemsJobPeerState>` for each peer
    - add to user list: `datagen:user:{username}:jobs`
 5. Return `{ jobId }`.
 
@@ -342,7 +342,7 @@ Behavior:
 - `GET /api/tasks`  
   - Return the current user’s jobs (from `datagen:user:{username}:jobs` + `datagen:jobs`), ordered by `updatedAt`.
 - `GET /api/tasks/[id]`  
-  - Return `DataGenJobBase` + all peer states + job details fetched from R1FS (schema, instructions, etc.).
+  - Return `DataGemsJobBase` + all peer states + job details fetched from R1FS (schema, instructions, etc.).
 - `GET /api/tasks/[id]/export?format=json|csv`
   - Fetch all peer result CIDs from CStore.
   - Download all peer JSONL files from R1FS.
@@ -362,7 +362,7 @@ Replace the in-process “fire-and-forget runner” fileciteturn1file4 
 1. Read the jobs index (`datagen:user:{username}:jobs` is user-specific, but worker needs global):
    - Prefer to scan `datagen:jobs` hash entries and pick those where this peer is assigned and not finished.
 2. For each job (ordered oldest-first or queued-first):
-   - Read this peer’s `DataGenJobPeerState`
+   - Read this peer’s `DataGemsJobPeerState`
    - If `generatedOk + generatedFailed < assigned`, it has work.
    - Ensure the instance isn’t currently busy with another job.
    - Start/resume job generation for this job.
@@ -466,7 +466,7 @@ On submit:
   - append short random suffix to avoid collisions (e.g., `john_smith_4f2a`)
 - Store the real `email`, `name`, `country` as user metadata in:
   - cstore-auth user meta (preferred), and/or
-  - `datagen:users` index record (`DataGenUserIndex`)
+  - `datagen:users` index record (`DataGemsUserIndex`)
 
 ### 9.3 Email implementation
 Add SMTP configuration env vars (required in production):
@@ -487,7 +487,7 @@ Implementation:
 ## 10) Files/modules to update (Codex checklist)
 
 ### 10.1 Types + keys
-- `lib/datagen/types.ts` — add `DataGenJobBase`, `DataGenJobPeerState`, `DataGenJobDetails`
+- `lib/datagen/types.ts` — add `DataGemsJobBase`, `DataGemsJobPeerState`, `DataGemsJobDetails`
 - `lib/ratio1/keys.ts` — add key builders:
   - `jobsHashKey()` -> `datagen:jobs`
   - `jobPeersHashKey(jobId)` -> `datagen:job:{id}:peers`
@@ -560,7 +560,7 @@ If jobs can get large, implement streaming export:
 ## 12) Testing plan (must-have)
 
 ### 12.1 Local multi-instance
-- Run 2–3 DataGen instances pointed at the same CStore/R1FS endpoints.
+- Run 2–3 DataGems instances pointed at the same CStore/R1FS endpoints.
 - Set `R1EN_CHAINSTORE_PEERS=peerA,peerB,peerC`
 - Start each container with its own `R1EN_HOST_ADDR` and its own inference API.
 
