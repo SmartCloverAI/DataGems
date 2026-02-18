@@ -4,6 +4,13 @@ const FALLBACK_MAP: Record<string, string[]> = {
   R1EN_CSTORE_AUTH_BOOTSTRAP_ADMIN_PWD: ["EE_CSTORE_AUTH_BOOTSTRAP_ADMIN_PW"],
 };
 
+const DEFAULT_MAP: Record<string, string> = {
+  DATAGEN_APP_HOST: "$R1EN_HOST_IP",
+  DATAGEN_APP_PORT: "3000",
+  DATAGEN_INFERENCE_HOST: "$R1EN_HOST_IP",
+  DATAGEN_INFERENCE_PORT: "$API_PORT",
+};
+
 function rawEnvValue(key: string): string | undefined {
   const value = process.env[key];
   if (value) return value;
@@ -12,7 +19,7 @@ function rawEnvValue(key: string): string | undefined {
     const fallbackValue = process.env[candidate];
     if (fallbackValue) return fallbackValue;
   }
-  return undefined;
+  return DEFAULT_MAP[key];
 }
 
 function expandEnvValue(

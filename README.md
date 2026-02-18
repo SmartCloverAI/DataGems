@@ -51,8 +51,8 @@ npm run dev
 - `R1EN_CSTORE_AUTH_SECRET`: Pepper for password hashing (fallback: `EE_CSTORE_AUTH_SECRET`).
 - `R1EN_CSTORE_AUTH_BOOTSTRAP_ADMIN_PWD`: Bootstrap admin password (fallback: `EE_CSTORE_AUTH_BOOTSTRAP_ADMIN_PW`).
 - `DATAGEN_SESSION_SECRET`: Secret used to sign session cookies/JWTs.
-- `DATAGEN_APP_HOST` / `DATAGEN_APP_PORT`: Public app host/port (fallback: `DATAGEN_APP_URL`).
-- `DATAGEN_INFERENCE_HOST` / `DATAGEN_INFERENCE_PORT`: Inference gateway host/port (fallback: `DATAGEN_INFERENCE_BASE_URL`).
+- `DATAGEN_APP_HOST` / `DATAGEN_APP_PORT`: Public app host/port (defaults: `$R1EN_HOST_IP` / `3000`, fallback: `DATAGEN_APP_URL`).
+- `DATAGEN_INFERENCE_HOST` / `DATAGEN_INFERENCE_PORT`: Inference gateway host/port (defaults: `$R1EN_HOST_IP` / `$API_PORT`, fallback: `DATAGEN_INFERENCE_BASE_URL`).
 - `R1EN_CHAINSTORE_PEERS`: Peer list for multi-instance execution (comma-separated or JSON array string).
 - `R1EN_HOST_ADDR`: Current instance peer id (must match one entry in `R1EN_CHAINSTORE_PEERS`).
 - `LOG_INFERENCE_REQUESTS`: When `true`, logs outgoing inference requests (auth header redacted).

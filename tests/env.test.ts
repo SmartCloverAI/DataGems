@@ -11,6 +11,14 @@ function setEnv(key: string, value: string) {
   process.env[key] = value;
 }
 
+function unsetEnv(key: string) {
+  if (!touched.has(key)) {
+    originalEnv[key] = process.env[key];
+    touched.add(key);
+  }
+  delete process.env[key];
+}
+
 afterEach(() => {
   for (const key of touched) {
     const original = originalEnv[key];
@@ -42,5 +50,19 @@ describe("environment expansion", () => {
     setEnv("B", "$A");
 
     expect(() => readEnv("A")).toThrow(/cycle/i);
+  });
+
+  it("returns documented defaults for app and inference host/port", () => {
+    setEnv("R1EN_HOST_IP", "172.18.0.3");
+    setEnv("API_PORT", "15035");
+    unsetEnv("DATAGEN_APP_HOST");
+    unsetEnv("DATAGEN_APP_PORT");
+    unsetEnv("DATAGEN_INFERENCE_HOST");
+    unsetEnv("DATAGEN_INFERENCE_PORT");
+
+    expect(readEnv("DATAGEN_APP_HOST")).toBe("172.18.0.3");
+    expect(readEnv("DATAGEN_APP_PORT")).toBe("3000");
+    expect(readEnv("DATAGEN_INFERENCE_HOST")).toBe("172.18.0.3");
+    expect(readEnv("DATAGEN_INFERENCE_PORT")).toBe("15035");
   });
 });
