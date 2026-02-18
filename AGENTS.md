@@ -98,11 +98,11 @@ DataGen is a **full-stack TypeScript web app + API** for generating synthetic da
 
 ### DataGen app secrets
 - `DATAGEN_SESSION_SECRET` (used to sign cookies/JWTs and draft tokens)
-- `DATAGEN_APP_HOST` + `DATAGEN_APP_PORT`
+- `DATAGEN_APP_HOST` + `DATAGEN_APP_PORT` (defaults: `$R1EN_HOST_IP` + `3000`)
 - `DATAGEN_MAX_RECORDS_PER_JOB` (default 200)
 
 ### Inference API
-- `DATAGEN_INFERENCE_HOST` + `DATAGEN_INFERENCE_PORT`
+- `DATAGEN_INFERENCE_HOST` + `DATAGEN_INFERENCE_PORT` (defaults: `$R1EN_HOST_IP` + `$API_PORT`)
 - `DATAGEN_INFERENCE_BASE_URL` (fallback for host/port)
 
 ### Multi-instance / peer identity
