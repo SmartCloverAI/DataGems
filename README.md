@@ -1,10 +1,10 @@
-# DataGen
+# DataGems
 
-**DataGen** is a commercial-grade synthetic data generation platform that helps teams create high-quality structured datasets quickly, safely, and repeatedly.
+**DataGems** is a commercial-grade synthetic data generation platform that helps teams create high-quality structured datasets quickly, safely, and repeatedly.
 
 It combines a Next.js full-stack app with Ratio1 CStore persistence and strict authentication to support auditable AI-data workflows for product, research, and regulated environments.
 
-## Why DataGen
+## Why DataGems
 
 - Generate synthetic datasets with predictable quality using one model call per record.
 - Keep full traceability of jobs, progress, outputs, and metrics in persistent storage.
@@ -16,7 +16,7 @@ It combines a Next.js full-stack app with Ratio1 CStore persistence and strict a
 
 **Owner:** `SmartClover SRL` (Romania)
 
-DataGen is part of SmartClover SRL's product strategy and aligns with the company's public objectives:
+DataGems is part of SmartClover SRL's product strategy and aligns with the company's public objectives:
 
 - Human-in-the-loop AI systems.
 - Data sovereignty and controlled deployments ("your AI, your Data").
@@ -29,7 +29,7 @@ As published on SmartClover channels (accessed February 17, 2026), SmartClover o
 - **Digital Resilience Platform for Healthcare**.
 - **Creative Education Experience Platform**.
 
-DataGen serves as an enabling layer for synthetic data operations across these product directions and adjacent enterprise use cases.
+DataGems serves as an enabling layer for synthetic data operations across these product directions and adjacent enterprise use cases.
 
 ## Quickstart
 
@@ -97,10 +97,10 @@ lib/
 ```bibtex
 @software{smartclover_datagen_2026,
   author       = {{SmartClover SRL}},
-  title        = {DataGen: Synthetic Dataset Generation Platform},
+  title        = {DataGems: Synthetic Dataset Generation Platform},
   year         = {2026},
   version      = {0.5.0},
-  url          = {https://github.com/SmartCloverAI/DataGen},
+  url          = {https://github.com/SmartCloverAI/DataGems},
   organization = {SmartClover SRL},
   note         = {Accessed 2026-02-17}
 }

@@ -6,7 +6,7 @@ export const INFERENCE_BASE_URL =
   "";
 export const CREATE_CHAT_COMPLETION_PATH = "/create_chat_completion";
 export const SYSTEM_PROMPT = `
-You are DataGenRecord, a STRICT JSON record generator.
+You are DataGemsRecord, a STRICT JSON record generator.
 
 You will receive:
 - A user description of ONE record, and often a JSON Schema that is the contract.
@@ -37,7 +37,7 @@ Before you output:
 `.trim();
 
 export const DATASET_RECORD_SYSTEM_PROMPT = `
-You are DataGenDatasetRecord, a STRICT JSON generator for SYNTHETIC ML DATASET ROWS.
+You are DataGemsDatasetRecord, a STRICT JSON generator for SYNTHETIC ML DATASET ROWS.
 
 You will receive a user description and often a JSON Schema that is the contract.
 Your job: output exactly ONE JSON OBJECT instance that conforms to the schema.
@@ -74,7 +74,7 @@ Then output ONLY the final JSON object.
 `.trim();
 
 export const SCHEMA_SYSTEM_PROMPT = `
-You are DataGenSchema, a JSON Schema author.
+You are DataGemsSchema, a JSON Schema author.
 
 Goal: Given the user's description of ONE record, output exactly ONE JSON Schema (draft 2020-12) describing a single JSON OBJECT record.
 
@@ -92,7 +92,7 @@ If the user request is underspecified, choose sensible minimal fields that still
 `.trim();
 
 export const DATASET_SCHEMA_SYSTEM_PROMPT = `
-You are DataGenDatasetSchema, a JSON Schema author for SYNTHETIC ML DATASETS.
+You are DataGemsDatasetSchema, a JSON Schema author for SYNTHETIC ML DATASETS.
 
 Goal: Given the user's description of ONE dataset record, output exactly ONE JSON Schema (draft 2020-12) for a single JSON OBJECT.
 

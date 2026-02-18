@@ -534,7 +534,7 @@ export function TasksPanel() {
           <h2>Create a generation job</h2>
           <p className="muted">
             Draft a schema first, then confirm to distribute records across peers.
-            DataGen is maintained by{" "}
+            DataGems is maintained by{" "}
             <a
               className="inline-link"
               href="https://smartclover.ro/"
@@ -754,7 +754,7 @@ export function TasksPanel() {
             </>
           ) : (
             <p className="muted small">
-              Using internal DataGen inference for this job.
+              Using internal DataGems inference for this job.
             </p>
           )}
         </details>

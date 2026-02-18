@@ -1,8 +1,8 @@
-# AGENTS.md — DataGen (instructions for Codex)
+# AGENTS.md — DataGems (instructions for Codex)
 
-This file is the briefing packet for **Codex**, the AI coding agent developing **DataGen**.
+This file is the briefing packet for **Codex**, the AI coding agent developing **DataGems**.
 
-DataGen is a **full-stack TypeScript web app + API** for generating synthetic datasets by making **one LLM-style inference call per record**. It uses Ratio1’s **CStore** for shared state and `@ratio1/cstore-auth-ts` for authentication, plus **R1FS** for large artifacts.
+DataGems is a **full-stack TypeScript web app + API** for generating synthetic datasets by making **one LLM-style inference call per record**. It uses Ratio1’s **CStore** for shared state and `@ratio1/cstore-auth-ts` for authentication, plus **R1FS** for large artifacts.
 
 ---
 
@@ -96,7 +96,7 @@ DataGen is a **full-stack TypeScript web app + API** for generating synthetic da
 
 > Legacy `EE_CSTORE_AUTH_*` names are supported; prefer `R1EN_*` in new code.
 
-### DataGen app secrets
+### DataGems app secrets
 - `DATAGEN_SESSION_SECRET` (used to sign cookies/JWTs and draft tokens)
 - `DATAGEN_APP_HOST` + `DATAGEN_APP_PORT` (defaults: `$R1EN_HOST_IP` + `3000`)
 - `DATAGEN_MAX_RECORDS_PER_JOB` (default 200)
@@ -148,17 +148,17 @@ DataGen is a **full-stack TypeScript web app + API** for generating synthetic da
 
 ### Key naming
 - `datagen:metrics` (metrics hash)
-- `datagen:jobs` (hash: jobId -> `DataGenJobBase` JSON)
-- `datagen:job:{jobId}:peers` (hash: peerId -> `DataGenJobPeerState` JSON)
+- `datagen:jobs` (hash: jobId -> `DataGemsJobBase` JSON)
+- `datagen:job:{jobId}:peers` (hash: peerId -> `DataGemsJobPeerState` JSON)
 - `datagen:user:{username}:jobs` (hash: jobId -> summary JSON)
-- `datagen:users` (hash: username -> `DataGenUserIndex` JSON)
+- `datagen:users` (hash: username -> `DataGemsUserIndex` JSON)
 - `datagen:user:{username}:settings` (JSON)
 
 ### Job base (CStore)
 ```ts
 type JobStatus = "queued" | "running" | "succeeded" | "failed";
 
-type DataGenJobBase = {
+type DataGemsJobBase = {
   id: string;
   owner: string;
   title: string;
@@ -184,7 +184,7 @@ type DataGenJobBase = {
 
 ### Peer state (CStore)
 ```ts
-type DataGenJobPeerState = {
+type DataGemsJobPeerState = {
   peerId: string;
   assigned: number;
   range: { start: number; end: number };
@@ -200,7 +200,7 @@ type DataGenJobPeerState = {
 
 ### Job details (R1FS)
 ```ts
-type DataGenJobDetails = {
+type DataGemsJobDetails = {
   id: string;
   owner: string;
   description: string;

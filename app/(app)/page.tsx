@@ -1,7 +1,6 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-import { LogoutButton } from "@/components/LogoutButton";
 import { getSessionFromCookies } from "@/lib/auth/session";
 import { getMetricsSafe } from "@/lib/datagen/metrics";
 import { TasksPanel } from "@/components/TasksPanel";
@@ -20,10 +19,10 @@ export default async function DashboardPage() {
         <header className="panel__header">
           <div>
             <p className="eyebrow">Welcome</p>
-            <h1>DataGen dashboard</h1>
+            <h1>DataGems Dashboard</h1>
             <p className="muted">
               Track generation jobs, see progress, and export results. Metrics are
-              persisted in CStore. DataGen is maintained by{" "}
+              persisted in CStore. DataGems is maintained by{" "}
               <a
                 className="inline-link"
                 href="https://smartclover.ro/"
@@ -36,10 +35,7 @@ export default async function DashboardPage() {
             </p>
           </div>
           <div className="panel__actions">
-            <div className="pill">
-              Signed in as <strong>{session.username}</strong>
-            </div>
-            <LogoutButton />
+            <div className="pill">CStore-secured workspace</div>
           </div>
         </header>
 
