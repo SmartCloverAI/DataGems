@@ -55,65 +55,70 @@ export default function LoginPage() {
           </div>
         </header>
 
-        <form className="form" onSubmit={handleSubmit}>
-          <label className="field">
-            <span>Username</span>
-            <input
-              name="username"
-              autoComplete="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
-          </label>
+        <div className="auth-split">
+          <section className="auth-pane auth-pane--primary">
+            <h2>Sign in</h2>
+            <form className="form auth-form" onSubmit={handleSubmit}>
+              <label className="field">
+                <span>Username</span>
+                <input
+                  name="username"
+                  autoComplete="username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required
+                />
+              </label>
 
-          <label className="field">
-            <span>Password</span>
-            <input
-              name="password"
-              type="password"
-              autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </label>
+              <label className="field">
+                <span>Password</span>
+                <input
+                  name="password"
+                  type="password"
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </label>
 
-          {error ? <p className="error">{error}</p> : null}
+              {error ? <p className="error">{error}</p> : null}
 
-          <button className="button" type="submit" disabled={loading}>
-            {loading ? "Signing in..." : "Sign in"}
-          </button>
-        </form>
+              <button className="button" type="submit" disabled={loading}>
+                {loading ? "Signing in..." : "Sign in"}
+              </button>
+            </form>
+          </section>
 
-        <div className="panel__body">
-          <h2>Create an account</h2>
-          <p className="muted">
-            New here? Create a DataGems account and receive credentials by email.
-          </p>
-          <p className="muted small">
-            Project owner references:{" "}
-            <a
-              className="inline-link"
-              href="https://smartclover.ro/about"
-              target="_blank"
-              rel="noreferrer"
-            >
-              SmartClover About
-            </a>
-            {" · "}
-            <a
-              className="inline-link"
-              href="https://smartclover.ro/services"
-              target="_blank"
-              rel="noreferrer"
-            >
-              SmartClover Products
-            </a>
-          </p>
-          <Link className="button button--ghost" href="/register">
-            Create account
-          </Link>
+          <aside className="auth-pane auth-pane--secondary">
+            <h2>Create an account</h2>
+            <p className="muted">
+              New here? Create a DataGems account and receive credentials by email.
+            </p>
+            <p className="muted small">
+              Project owner references:{" "}
+              <a
+                className="inline-link"
+                href="https://smartclover.ro/about"
+                target="_blank"
+                rel="noreferrer"
+              >
+                SmartClover About
+              </a>
+              {" · "}
+              <a
+                className="inline-link"
+                href="https://smartclover.ro/products"
+                target="_blank"
+                rel="noreferrer"
+              >
+                SmartClover Products
+              </a>
+            </p>
+            <Link className="button button--ghost auth-pane__cta" href="/register">
+              Create account
+            </Link>
+          </aside>
         </div>
       </section>
     </main>

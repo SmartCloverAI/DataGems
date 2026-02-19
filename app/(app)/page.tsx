@@ -86,7 +86,7 @@ export default async function DashboardPage() {
               Ownership reference:{" "}
               <a
                 className="inline-link"
-                href="https://smartclover.ro/services"
+                href="https://smartclover.ro/products"
                 target="_blank"
                 rel="noreferrer"
               >

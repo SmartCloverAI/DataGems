@@ -113,7 +113,7 @@ export default function RegisterPage() {
             {" · "}
             <a
               className="inline-link"
-              href="https://smartclover.ro/services"
+              href="https://smartclover.ro/products"
               target="_blank"
               rel="noreferrer"
             >
