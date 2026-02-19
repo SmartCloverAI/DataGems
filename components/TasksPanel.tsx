@@ -80,6 +80,13 @@ function loadUiTestPreset(): UiTestPreset | null {
   }
 }
 
+function formatDurationMs(ms?: number): string {
+  const safeMs = typeof ms === "number" && Number.isFinite(ms) ? Math.max(ms, 0) : 0;
+  const seconds = safeMs / 1000;
+  const fractionDigits = seconds < 10 ? 2 : 1;
+  return `${seconds.toFixed(fractionDigits)}s`;
+}
+
 export function TasksPanel() {
   const [jobs, setJobs] = useState<JobBase[]>([]);
   const [title, setTitle] = useState("");
@@ -780,7 +787,7 @@ export function TasksPanel() {
         <div className="panel__body">
           <h3>Draft schema</h3>
           <p className="muted small">
-            Generated at {schemaMeta?.schemaGeneratedAt} · {schemaMeta?.schemaDurationMs}ms ·
+            Generated at {schemaMeta?.schemaGeneratedAt} · {formatDurationMs(schemaMeta?.schemaDurationMs)} ·
             refreshes {schemaMeta?.schemaRefreshes}
           </p>
           <pre className="code-block">{JSON.stringify(draftSchema, null, 2)}</pre>
@@ -839,13 +846,13 @@ export function TasksPanel() {
                         <p className="error">{jobDetailErrors[job.id]}</p>
                       ) : null}
                       <p className="muted">
-                        Schema generated at {job.schemaGeneratedAt} · {job.schemaDurationMs}ms ·
+                        Schema generated at {job.schemaGeneratedAt} · {formatDurationMs(job.schemaDurationMs)} ·
                         refreshes {job.schemaRefreshes}
                       </p>
                       <p className="muted">Job started: {job.jobStartedAt ?? "—"}</p>
                       <p className="muted">Job finished: {job.jobFinishedAt ?? "—"}</p>
                       <p className="muted">
-                        Records duration: {job.recordsDurationMs ?? 0}ms · workers {job.peerCount}
+                        Records duration: {formatDurationMs(job.recordsDurationMs)} · workers {job.peerCount}
                       </p>
 
                       <p><strong>Description</strong></p>
@@ -874,6 +881,16 @@ export function TasksPanel() {
                       <div className="peer-table">
                         <p><strong>Peer stats</strong></p>
                         <div className="peer-table__grid">
+                          {(jobPeers[job.id] ?? []).length > 0 ? (
+                            <div className="peer-row peer-row--header" aria-hidden="true">
+                              <span>Peer</span>
+                              <span>Generated</span>
+                              <span>Failed</span>
+                              <span>Result CID</span>
+                              <span>Started</span>
+                              <span>Finished</span>
+                            </div>
+                          ) : null}
                           {(jobPeers[job.id] ?? []).map((peer) => (
                             <div key={peer.peerId} className="peer-row">
                               <span data-label="Peer">{peer.peerId}</span>

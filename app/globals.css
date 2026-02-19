@@ -489,6 +489,12 @@ a {
   overflow-wrap: anywhere;
 }
 
+.peer-row--header {
+  background: rgba(17, 44, 34, 0.85);
+  color: var(--text);
+  font-weight: 700;
+}
+
 .download-row {
   display: flex;
   gap: 12px;
@@ -762,6 +768,10 @@ a {
     border: 1px solid rgba(63, 121, 101, 0.45);
     border-radius: 10px;
     background: rgba(8, 26, 20, 0.88);
+  }
+
+  .peer-row--header {
+    display: none;
   }
 
   .peer-row span {
