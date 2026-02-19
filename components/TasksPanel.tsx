@@ -66,6 +66,29 @@ type SavedProfile = {
   hasApiKey: boolean;
 };
 
+type UserSettingsResponse = {
+  profiles?: SavedProfile[];
+  maxProfiles?: number;
+  activeProfileId?: string;
+  baseUrl?: string;
+  path?: string;
+  model?: string;
+  hasApiKey?: boolean;
+};
+
+type ModelEntry = string | { id?: string; name?: string };
+
+type ModelsResponse = {
+  models?: ModelEntry[];
+  error?: string;
+};
+
+type JobDetailsResponse = {
+  details?: JobDetails;
+  peers?: JobPeerState[];
+  error?: string;
+};
+
 function loadUiTestPreset(): UiTestPreset | null {
   const raw = process.env.NEXT_PUBLIC_DATAGEN_UI_TEST_PRESET;
   if (!raw || raw.trim().length === 0) return null;
@@ -85,6 +108,14 @@ function formatDurationMs(ms?: number): string {
   const seconds = safeMs / 1000;
   const fractionDigits = seconds < 10 ? 2 : 1;
   return `${seconds.toFixed(fractionDigits)}s`;
+}
+
+async function readJsonSafe<T = unknown>(response: Response): Promise<T | null> {
+  try {
+    return await response.json() as T;
+  } catch {
+    return null;
+  }
 }
 
 export function TasksPanel() {
@@ -133,32 +164,52 @@ export function TasksPanel() {
   const latestJobsRef = useRef<JobBase[]>([]);
 
   const refresh = async () => {
-    const res = await fetch("/api/tasks", { cache: "no-store" });
-    if (!res.ok) {
-      setError("Failed to load jobs");
+    try {
+      const res = await fetch("/api/tasks", { cache: "no-store" });
+      if (!res.ok) {
+        setError(
+          res.status === 401
+            ? "Session expired. Please sign in again."
+            : "Failed to load jobs",
+        );
+        return;
+      }
+      const data = await readJsonSafe<{ jobs?: JobBase[] }>(res);
+      setJobs(data?.jobs ?? []);
+    } catch {
+      setError("Failed to reach the server. Retrying...");
       return;
     }
-    const data = await res.json();
-    setJobs(data.jobs ?? []);
   };
 
   useEffect(() => {
-    let timer: NodeJS.Timeout;
+    let timer: NodeJS.Timeout | null = null;
+    let cancelled = false;
 
     const schedule = (seconds: number) => {
-      timer = setTimeout(tick, seconds * 1000);
+      timer = setTimeout(() => {
+        tick().catch(() => {
+          // Polling must be resilient to transient network failures.
+        });
+      }, seconds * 1000);
     };
 
     const tick = async () => {
       await refresh();
+      if (cancelled) return;
       const hasActive = (latestJobsRef.current ?? []).some(
         (job) => job.status === "running" || job.status === "queued",
       );
       schedule(hasActive ? ACTIVE_POLL_SECONDS : IDLE_POLL_SECONDS);
     };
 
-    tick();
-    return () => clearTimeout(timer);
+    tick().catch(() => {
+      // Polling must be resilient to transient network failures.
+    });
+    return () => {
+      cancelled = true;
+      if (timer) clearTimeout(timer);
+    };
   }, []);
 
   useEffect(() => {
@@ -204,30 +255,35 @@ export function TasksPanel() {
 
   useEffect(() => {
     const loadSettings = async () => {
-      const res = await fetch("/api/user/settings", { cache: "no-store" });
-      if (!res.ok) return;
-      const data = await res.json();
-      const nextProfiles = Array.isArray(data.profiles) ? data.profiles : [];
-      setProfiles(nextProfiles);
-      setMaxProfiles(
-        typeof data.maxProfiles === "number" && Number.isFinite(data.maxProfiles)
-          ? data.maxProfiles
-          : 10,
-      );
-      if (typeof data.activeProfileId === "string") {
-        setSelectedProfileId(data.activeProfileId);
+      try {
+        const res = await fetch("/api/user/settings", { cache: "no-store" });
+        if (!res.ok) return;
+        const data = await readJsonSafe<UserSettingsResponse>(res);
+        if (!data) return;
+        const nextProfiles = Array.isArray(data.profiles) ? data.profiles : [];
+        setProfiles(nextProfiles);
+        setMaxProfiles(
+          typeof data.maxProfiles === "number" && Number.isFinite(data.maxProfiles)
+            ? data.maxProfiles
+            : 10,
+        );
+        if (typeof data.activeProfileId === "string") {
+          setSelectedProfileId(data.activeProfileId);
+        }
+        if (typeof data.baseUrl === "string") {
+          setInferenceBaseUrl(data.baseUrl);
+          setAdvancedOpen(true);
+        }
+        if (typeof data.path === "string") {
+          setInferencePath(data.path);
+        }
+        if (typeof data.model === "string") {
+          setInferenceModel(data.model);
+        }
+        setHasSavedApiKey(Boolean(data.hasApiKey));
+      } catch {
+        // Ignore transient settings fetch failures on initial load.
       }
-      if (typeof data.baseUrl === "string") {
-        setInferenceBaseUrl(data.baseUrl);
-        setAdvancedOpen(true);
-      }
-      if (typeof data.path === "string") {
-        setInferencePath(data.path);
-      }
-      if (typeof data.model === "string") {
-        setInferenceModel(data.model);
-      }
-      setHasSavedApiKey(Boolean(data.hasApiKey));
     };
     loadSettings();
   }, []);
@@ -241,40 +297,46 @@ export function TasksPanel() {
       }
       setModelsLoading(true);
       setModelsError(null);
-      const res = await fetch("/api/user/models", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          profileId: selectedProfileId || undefined,
-          baseUrl: inferenceBaseUrl,
-          apiKey: inferenceApiKey || undefined,
-        }),
-      });
-      setModelsLoading(false);
-      if (!res.ok) {
-        const data = await res.json().catch(() => null);
+      try {
+        const res = await fetch("/api/user/models", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            profileId: selectedProfileId || undefined,
+            baseUrl: inferenceBaseUrl,
+            apiKey: inferenceApiKey || undefined,
+          }),
+        });
+        setModelsLoading(false);
+        if (!res.ok) {
+          const data = await readJsonSafe<ModelsResponse>(res);
+          setModels([]);
+          setModelsError(data?.error ?? "Could not load models");
+          return;
+        }
+        const data = await readJsonSafe<ModelsResponse>(res);
+        const normalized =
+          Array.isArray(data?.models) && data.models.length > 0
+            ? data.models
+                .map((m: ModelEntry) =>
+                  typeof m === "string"
+                    ? m
+                    : typeof m?.id === "string"
+                      ? m.id
+                      : typeof m?.name === "string"
+                        ? m.name
+                        : null,
+                )
+                .filter((m: string | null): m is string => Boolean(m))
+            : [];
+        setModels(normalized);
+        if (normalized.length > 0 && !inferenceModel) {
+          setInferenceModel(normalized[0]);
+        }
+      } catch {
+        setModelsLoading(false);
         setModels([]);
-        setModelsError(data?.error ?? "Could not load models");
-        return;
-      }
-      const data = await res.json().catch(() => null);
-      const normalized =
-        Array.isArray(data?.models) && data.models.length > 0
-          ? data.models
-              .map((m: any) =>
-                typeof m === "string"
-                  ? m
-                  : typeof m?.id === "string"
-                    ? m.id
-                    : typeof m?.name === "string"
-                      ? m.name
-                      : null,
-              )
-              .filter((m: string | null): m is string => Boolean(m))
-          : [];
-      setModels(normalized);
-      if (normalized.length > 0 && !inferenceModel) {
-        setInferenceModel(normalized[0]);
+        setModelsError("Failed to reach model endpoint");
       }
     };
     loadModels();
@@ -317,21 +379,26 @@ export function TasksPanel() {
   };
 
   const refreshSettings = async () => {
-    const res = await fetch("/api/user/settings", { cache: "no-store" });
-    if (!res.ok) return false;
-    const data = await res.json();
-    const nextProfiles = Array.isArray(data.profiles) ? data.profiles : [];
-    setProfiles(nextProfiles);
-    setMaxProfiles(
-      typeof data.maxProfiles === "number" && Number.isFinite(data.maxProfiles)
-        ? data.maxProfiles
-        : 10,
-    );
-    if (typeof data.activeProfileId === "string") {
-      setSelectedProfileId(data.activeProfileId);
+    try {
+      const res = await fetch("/api/user/settings", { cache: "no-store" });
+      if (!res.ok) return false;
+      const data = await readJsonSafe<UserSettingsResponse>(res);
+      if (!data) return false;
+      const nextProfiles = Array.isArray(data.profiles) ? data.profiles : [];
+      setProfiles(nextProfiles);
+      setMaxProfiles(
+        typeof data.maxProfiles === "number" && Number.isFinite(data.maxProfiles)
+          ? data.maxProfiles
+          : 10,
+      );
+      if (typeof data.activeProfileId === "string") {
+        setSelectedProfileId(data.activeProfileId);
+      }
+      setHasSavedApiKey(Boolean(data.hasApiKey));
+      return true;
+    } catch {
+      return false;
     }
-    setHasSavedApiKey(Boolean(data.hasApiKey));
-    return true;
   };
 
   const saveSettings = async (options?: { asNew?: boolean }) => {
@@ -514,21 +581,28 @@ export function TasksPanel() {
   const loadJobDetails = async (jobId: string) => {
     if (loadingJobIds[jobId]) return;
     setLoadingJobIds((prev) => ({ ...prev, [jobId]: true }));
-    const res = await fetch(`/api/tasks/${jobId}`, { cache: "no-store" });
-    if (res.ok) {
-      const data = await res.json();
-      if (data?.details) {
-        setJobDetails((prev) => ({ ...prev, [jobId]: data.details }));
+    try {
+      const res = await fetch(`/api/tasks/${jobId}`, { cache: "no-store" });
+      if (res.ok) {
+        const data = await readJsonSafe<JobDetailsResponse>(res);
+        if (data?.details) {
+          setJobDetails((prev) => ({ ...prev, [jobId]: data.details }));
+        }
+        if (Array.isArray(data?.peers)) {
+          setJobPeers((prev) => ({ ...prev, [jobId]: data.peers }));
+        }
+        setJobDetailErrors((prev) => ({ ...prev, [jobId]: "" }));
+      } else {
+        const data = await readJsonSafe<{ error?: string }>(res);
+        setJobDetailErrors((prev) => ({
+          ...prev,
+          [jobId]: data?.error ?? "Failed to load job details",
+        }));
       }
-      if (Array.isArray(data?.peers)) {
-        setJobPeers((prev) => ({ ...prev, [jobId]: data.peers }));
-      }
-      setJobDetailErrors((prev) => ({ ...prev, [jobId]: "" }));
-    } else {
-      const data = await res.json().catch(() => null);
+    } catch {
       setJobDetailErrors((prev) => ({
         ...prev,
-        [jobId]: data?.error ?? "Failed to load job details",
+        [jobId]: "Failed to reach server while loading details",
       }));
     }
     setLoadingJobIds((prev) => ({ ...prev, [jobId]: false }));
