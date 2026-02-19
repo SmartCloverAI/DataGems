@@ -1,8 +1,10 @@
-import { optionalNumberEnv, requiredEnv } from "@/lib/env";
+import { optionalNumberEnv, readEnv, requiredEnv } from "@/lib/env";
+import { shouldUseMockCStore } from "@/lib/ratio1/mockMode";
 
 export const DEFAULT_JOB_POLL_SECONDS = 5;
 export const DEFAULT_UPDATE_EVERY_K = 5;
 export const DEFAULT_MAX_CONCURRENT_JOBS = 1;
+const DEFAULT_MOCK_PEER = "local";
 
 function stripWrappingQuotes(value: string) {
   if (
@@ -38,20 +40,37 @@ function parsePeers(rawInput: string): string[] {
 }
 
 export function getPeerList(): string[] {
-  const raw = requiredEnv("R1EN_CHAINSTORE_PEERS");
+  const raw = readEnv("R1EN_CHAINSTORE_PEERS");
+  if (!raw) {
+    if (shouldUseMockCStore()) {
+      const current = readEnv("R1EN_HOST_ADDR")?.trim();
+      return [current || DEFAULT_MOCK_PEER];
+    }
+    throw new Error(
+      `Missing required environment variable: ${"R1EN_CHAINSTORE_PEERS"}`,
+    );
+  }
   const peers = parsePeers(raw);
   if (peers.length === 0) {
+    if (shouldUseMockCStore()) {
+      return [DEFAULT_MOCK_PEER];
+    }
     throw new Error("No peers parsed from R1EN_CHAINSTORE_PEERS");
   }
   return peers;
 }
 
 export function getPeerId(): string {
-  const peerId = requiredEnv("R1EN_HOST_ADDR").trim();
-  if (!peerId) {
+  const peerId = readEnv("R1EN_HOST_ADDR")?.trim();
+  if (peerId) return peerId;
+  if (shouldUseMockCStore()) {
+    return getPeerList()[0] ?? DEFAULT_MOCK_PEER;
+  }
+  const requiredPeerId = requiredEnv("R1EN_HOST_ADDR").trim();
+  if (!requiredPeerId) {
     throw new Error("R1EN_HOST_ADDR is required");
   }
-  return peerId;
+  return requiredPeerId;
 }
 
 export function ensurePeerConfig() {

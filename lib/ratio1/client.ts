@@ -1,12 +1,12 @@
 import createEdgeSdk from "@ratio1/edge-sdk-ts";
 
-import { envFlag, envHostPortUrl, readEnv } from "@/lib/env";
+import { envHostPortUrl, readEnv } from "@/lib/env";
 import { mockCStore, mockR1fs } from "./mock";
+import { shouldUseMockCStore } from "./mockMode";
 
 type RatioClient = ReturnType<typeof createEdgeSdk>;
 
 let cachedClient: RatioClient | null = null;
-const mockMode = envFlag("DATAGEN_MOCK_CSTORE");
 
 function buildCStoreUrl() {
   return (
@@ -25,7 +25,7 @@ function buildR1fsUrl() {
 }
 
 export function getRatioClient(): RatioClient {
-  if (mockMode) {
+  if (shouldUseMockCStore()) {
     // @ts-expect-error - mock implements the subset we need
     return { cstore: mockCStore, r1fs: mockR1fs } as RatioClient;
   }

@@ -1,6 +1,6 @@
 import { sign, verify } from "jsonwebtoken";
 
-import { requiredEnv } from "@/lib/env";
+import { getSigningSecret } from "@/lib/auth/signingSecret";
 
 const DRAFT_TTL_SECONDS = 60 * 30; // 30 minutes
 
@@ -22,7 +22,7 @@ export type DraftTokenPayload = {
 };
 
 function draftSecret() {
-  return requiredEnv("DATAGEN_SESSION_SECRET");
+  return getSigningSecret();
 }
 
 export function createDraftToken(payload: DraftTokenPayload) {

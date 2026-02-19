@@ -15,6 +15,12 @@ const registrationSchema = z.object({
   country: z.string().min(1).max(120),
 });
 
+type ErrorLike = {
+  name?: string;
+  code?: string;
+  message?: string;
+};
+
 function buildUsername(email: string) {
   const [localPart = "user"] = email.toLowerCase().split("@");
   const sanitized = localPart.replace(/[^a-z0-9_]/g, "_").replace(/^_+|_+$/g, "");
@@ -27,14 +33,22 @@ function generatePassword() {
   return randomBytes(12).toString("base64url");
 }
 
+function asErrorLike(error: unknown): ErrorLike {
+  if (!error || typeof error !== "object") return {};
+  return error as ErrorLike;
+}
+
 function isUserExists(error: unknown) {
-  const name = (error as any)?.name;
-  const code = (error as any)?.code;
-  const message = (error as any)?.message ?? "";
+  const { name, code, message = "" } = asErrorLike(error);
   if (name === "UserExistsError") return true;
   if (typeof code === "string" && code.toUpperCase().includes("EXIST")) return true;
   if (typeof message === "string" && message.toLowerCase().includes("exists")) return true;
   return false;
+}
+
+function isConfigError(error: unknown) {
+  const message = (error as { message?: string })?.message ?? "";
+  return message.includes("Missing required environment variable");
 }
 
 export async function POST(request: NextRequest) {
@@ -56,13 +70,13 @@ export async function POST(request: NextRequest) {
     }
 
     const auth = await ensureAuthInitialized();
-    let user = null as any;
+    let user: { username: string } | null = null;
     for (let attempt = 0; attempt < 3; attempt += 1) {
       try {
         user = await auth.simple.createUser(username, password, {
           role: "user",
           metadata: { name, email: normalizedEmail, country },
-        });
+        }) as { username: string };
         break;
       } catch (error) {
         if (isUserExists(error) && attempt < 2) {
@@ -71,6 +85,9 @@ export async function POST(request: NextRequest) {
         }
         throw error;
       }
+    }
+    if (!user) {
+      throw new Error("Unable to create user");
     }
     await upsertUserIndex({
       username: user.username,
@@ -89,6 +106,12 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     if (isUserExists(error)) {
       return NextResponse.json({ error: "User already exists" }, { status: 409 });
+    }
+    if (isConfigError(error)) {
+      return NextResponse.json(
+        { error: "Server auth is not configured" },
+        { status: 500 },
+      );
     }
     console.error("Registration failed", error);
     return NextResponse.json(

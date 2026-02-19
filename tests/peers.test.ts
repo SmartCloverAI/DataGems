@@ -1,4 +1,4 @@
-import { getPeerList, splitAssignments } from "@/lib/datagen/peers";
+import { getPeerId, getPeerList, splitAssignments } from "@/lib/datagen/peers";
 
 describe("peer assignments", () => {
   const envBackup = { ...process.env };
@@ -19,5 +19,24 @@ describe("peer assignments", () => {
   it("parses peers from JSON array format", () => {
     process.env.R1EN_CHAINSTORE_PEERS = '["peerA","peerB"]';
     expect(getPeerList()).toEqual(["peerA", "peerB"]);
+  });
+
+  it("defaults to a local peer in mock mode when peer env is missing", () => {
+    process.env["NODE_ENV"] = "test";
+    process.env.DATAGEN_MOCK_CSTORE = "true";
+    delete process.env.R1EN_CHAINSTORE_PEERS;
+    delete process.env.R1EN_HOST_ADDR;
+
+    expect(getPeerList()).toEqual(["local"]);
+    expect(getPeerId()).toBe("local");
+  });
+
+  it("keeps production strict when peer env is missing", () => {
+    process.env["NODE_ENV"] = "production";
+    delete process.env.DATAGEN_MOCK_CSTORE;
+    delete process.env.R1EN_CHAINSTORE_PEERS;
+    delete process.env.R1EN_HOST_ADDR;
+
+    expect(() => getPeerList()).toThrow(/R1EN_CHAINSTORE_PEERS/);
   });
 });

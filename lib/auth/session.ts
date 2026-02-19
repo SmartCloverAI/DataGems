@@ -3,7 +3,7 @@ import type { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension
 import { SignOptions, verify, sign } from "jsonwebtoken";
 import { serialize } from "cookie";
 
-import { requiredEnv } from "@/lib/env";
+import { getSigningSecret } from "@/lib/auth/signingSecret";
 
 export type SessionUser = {
   username: string;
@@ -14,7 +14,7 @@ export const SESSION_COOKIE = "datagen_session";
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7; // 7 days
 
 function sessionSecret() {
-  return requiredEnv("DATAGEN_SESSION_SECRET");
+  return getSigningSecret();
 }
 
 export function createSessionToken(user: SessionUser, opts?: SignOptions) {

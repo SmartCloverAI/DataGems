@@ -1,17 +1,17 @@
 import { CStoreAuth } from "@ratio1/cstore-auth-ts";
 
-import { envFlag, requiredEnv } from "@/lib/env";
+import { requiredEnv } from "@/lib/env";
 import { getCStore } from "./client";
 import { mockAuth } from "./mock";
+import { REQUIRED_AUTH_ENV_KEYS, shouldUseMockCStore } from "./mockMode";
 
 let authInstance: CStoreAuth | null = null;
 let initPromise: Promise<void> | null = null;
-const mockMode = envFlag("DATAGEN_MOCK_CSTORE");
 
 function ensureAuthEnv() {
-  requiredEnv("R1EN_CSTORE_AUTH_HKEY");
-  requiredEnv("R1EN_CSTORE_AUTH_SECRET");
-  requiredEnv("R1EN_CSTORE_AUTH_BOOTSTRAP_ADMIN_PWD");
+  for (const key of REQUIRED_AUTH_ENV_KEYS) {
+    requiredEnv(key);
+  }
 }
 
 function cstoreAuthAdapter() {
@@ -26,7 +26,7 @@ function cstoreAuthAdapter() {
 }
 
 export function getAuthClient() {
-  if (mockMode) {
+  if (shouldUseMockCStore()) {
     return mockAuth as unknown as CStoreAuth;
   }
   if (!authInstance) {

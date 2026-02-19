@@ -3,11 +3,23 @@ import { z } from "zod";
 
 import { createSessionCookie, createSessionToken } from "@/lib/auth/session";
 import { ensureAuthInitialized } from "@/lib/ratio1/auth";
+import { shouldUseMockCStore } from "@/lib/ratio1/mockMode";
 
 const loginSchema = z.object({
   username: z.string().min(1, "Username is required"),
   password: z.string().min(1, "Password is required"),
 });
+
+function isConfigError(error: unknown) {
+  const message = (error as { message?: string })?.message ?? "";
+  return message.includes("Missing required environment variable");
+}
+
+function isInvalidCredentials(error: unknown) {
+  const code = (error as { code?: string })?.code ?? "";
+  const name = (error as { name?: string })?.name ?? "";
+  return code === "INVALID_CREDENTIALS" || name === "InvalidCredentialsError";
+}
 
 export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => null);
@@ -38,6 +50,18 @@ export async function POST(request: NextRequest) {
     return response;
   } catch (error) {
     console.error("Login failed", error);
+    if (isConfigError(error)) {
+      return NextResponse.json(
+        { error: "Server auth is not configured" },
+        { status: 500 },
+      );
+    }
+    if (shouldUseMockCStore() && isInvalidCredentials(error)) {
+      return NextResponse.json(
+        { error: "Invalid credentials (mock mode defaults: admin/admin or test_user/testtest)." },
+        { status: 401 },
+      );
+    }
     return NextResponse.json(
       { error: "Invalid credentials" },
       { status: 401 },

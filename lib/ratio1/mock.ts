@@ -182,9 +182,29 @@ class MockAuth {
   simple = {
     init: async () => {},
     authenticate: async (username: string, password: string) => {
-      const key = username.trim().toLowerCase();
+      const usernameInput = username.trim();
+      const passwordInput = password.trim();
+
+      let usernameCandidate = usernameInput;
+      let passwordCandidate = passwordInput;
+
+      // Accept shorthand mock credential input like "admin/admin".
+      const slashIndex = usernameInput.indexOf("/");
+      if (
+        slashIndex > 0 &&
+        slashIndex < usernameInput.length - 1 &&
+        (passwordInput.length === 0 || passwordInput === usernameInput)
+      ) {
+        usernameCandidate = usernameInput.slice(0, slashIndex);
+        passwordCandidate = usernameInput.slice(slashIndex + 1);
+      }
+
+      const key = usernameCandidate.toLowerCase();
       const user = mockUsers.get(key);
-      if (!user || user.password !== password) {
+      const passwordMatches =
+        user?.password === password || user?.password === passwordInput ||
+        user?.password === passwordCandidate;
+      if (!user || !passwordMatches) {
         const err = new Error("Invalid credentials");
         (err as any).code = "INVALID_CREDENTIALS";
         err.name = "InvalidCredentialsError";

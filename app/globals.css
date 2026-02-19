@@ -172,6 +172,56 @@ a {
   margin-top: 12px;
 }
 
+.auth-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(260px, 0.85fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.auth-pane {
+  border: 1px solid rgba(57, 120, 98, 0.44);
+  border-radius: 16px;
+  background: rgba(6, 19, 15, 0.62);
+  padding: 18px;
+}
+
+.auth-pane h2 {
+  margin: 0 0 12px;
+  font-size: 20px;
+}
+
+.auth-pane--secondary {
+  height: 100%;
+}
+
+.auth-pane__cta {
+  margin-top: 10px;
+  width: 100%;
+}
+
+.auth-form {
+  gap: 12px;
+}
+
+.auth-form .field {
+  gap: 6px;
+}
+
+.auth-form .field span {
+  font-size: 13px;
+}
+
+.auth-form .field input {
+  font-size: 14px;
+  padding: 10px 12px;
+  border-radius: 10px;
+}
+
+.auth-form .button {
+  padding: 10px 14px;
+}
+
 .eyebrow {
   margin: 0;
   text-transform: uppercase;
@@ -724,6 +774,10 @@ a {
   .peer-row {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px 14px;
+  }
+
+  .auth-split {
+    grid-template-columns: 1fr;
   }
 }
 
