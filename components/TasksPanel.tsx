@@ -84,8 +84,8 @@ type ModelsResponse = {
 };
 
 type JobDetailsResponse = {
-  details?: JobDetails;
-  peers?: JobPeerState[];
+  details?: JobDetails | null;
+  peers?: JobPeerState[] | null;
   error?: string;
 };
 
@@ -585,11 +585,13 @@ export function TasksPanel() {
       const res = await fetch(`/api/tasks/${jobId}`, { cache: "no-store" });
       if (res.ok) {
         const data = await readJsonSafe<JobDetailsResponse>(res);
-        if (data?.details) {
-          setJobDetails((prev) => ({ ...prev, [jobId]: data.details }));
+        const details = data?.details;
+        if (details) {
+          setJobDetails((prev) => ({ ...prev, [jobId]: details }));
         }
-        if (Array.isArray(data?.peers)) {
-          setJobPeers((prev) => ({ ...prev, [jobId]: data.peers }));
+        const peers = data?.peers;
+        if (Array.isArray(peers)) {
+          setJobPeers((prev) => ({ ...prev, [jobId]: peers }));
         }
         setJobDetailErrors((prev) => ({ ...prev, [jobId]: "" }));
       } else {
