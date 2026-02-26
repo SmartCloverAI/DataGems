@@ -279,6 +279,16 @@ class MockAuth {
       existing.updatedAt = new Date().toISOString();
       mockUsers.set(key, existing);
     },
+    deleteUser: async (username: string) => {
+      const key = username.trim().toLowerCase();
+      if (!mockUsers.has(key)) {
+        const err = new Error("User not found");
+        (err as any).code = "USER_NOT_FOUND";
+        err.name = "UserNotFoundError";
+        throw err;
+      }
+      mockUsers.delete(key);
+    },
   };
 }
 

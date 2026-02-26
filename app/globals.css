@@ -302,6 +302,61 @@ a {
   box-shadow: 0 0 0 3px rgba(37, 224, 138, 0.17);
 }
 
+.password-input {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input input {
+  width: 100%;
+  padding-right: 56px;
+}
+
+.password-input__reveal {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 1px solid var(--panel-border);
+  background: rgba(11, 30, 24, 0.85);
+  color: #ccfce3;
+  border-radius: 8px;
+  width: 36px;
+  height: 28px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.password-input__reveal:hover {
+  border-color: var(--panel-border-strong);
+}
+
+.password-input__reveal:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(37, 224, 138, 0.2);
+}
+
+.password-input__eye {
+  width: 16px;
+  height: 16px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .textarea {
   min-height: 140px;
   padding: 14px;
@@ -540,6 +595,41 @@ a {
 }
 
 .peer-row--header {
+  background: rgba(17, 44, 34, 0.85);
+  color: var(--text);
+  font-weight: 700;
+}
+
+.admin-table {
+  overflow-x: auto;
+}
+
+.admin-row {
+  display: grid;
+  grid-template-columns:
+    minmax(140px, 0.9fr)
+    minmax(220px, 1.3fr)
+    minmax(140px, 0.8fr)
+    minmax(150px, 0.8fr);
+  gap: 8px;
+  font-size: 13px;
+  color: var(--muted);
+  align-items: center;
+  padding: 10px 12px;
+  border-top: 1px solid rgba(63, 121, 101, 0.35);
+  min-width: 720px;
+}
+
+.admin-row:first-child {
+  border-top: 0;
+}
+
+.admin-row span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.admin-row--header {
   background: rgba(17, 44, 34, 0.85);
   color: var(--text);
   font-weight: 700;

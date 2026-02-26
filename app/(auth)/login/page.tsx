@@ -8,6 +8,7 @@ export default function LoginPage() {
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const handleSubmit = async (event: FormEvent) => {
@@ -72,14 +73,53 @@ export default function LoginPage() {
 
               <label className="field">
                 <span>Password</span>
-                <input
-                  name="password"
-                  type="password"
-                  autoComplete="current-password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
+                <div className="password-input">
+                  <input
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    autoComplete="current-password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                  <button
+                    className="password-input__reveal"
+                    type="button"
+                    aria-label="Hold to show password"
+                    onMouseDown={(event) => {
+                      event.preventDefault();
+                      setShowPassword(true);
+                    }}
+                    onMouseUp={() => setShowPassword(false)}
+                    onMouseLeave={() => setShowPassword(false)}
+                    onTouchStart={(event) => {
+                      event.preventDefault();
+                      setShowPassword(true);
+                    }}
+                    onTouchEnd={() => setShowPassword(false)}
+                    onTouchCancel={() => setShowPassword(false)}
+                    onKeyDown={(event) => {
+                      if (event.key === " " || event.key === "Enter") {
+                        event.preventDefault();
+                        setShowPassword(true);
+                      }
+                    }}
+                    onKeyUp={() => setShowPassword(false)}
+                    onBlur={() => setShowPassword(false)}
+                  >
+                    <span className="sr-only">Show password while pressed</span>
+                    <svg
+                      className="password-input__eye"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6zm10 3.5a3.5 3.5 0 100-7 3.5 3.5 0 000 7z"
+                        fill="currentColor"
+                      />
+                    </svg>
+                  </button>
+                </div>
               </label>
 
               {error ? <p className="error">{error}</p> : null}

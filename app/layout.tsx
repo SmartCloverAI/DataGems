@@ -1,6 +1,7 @@
 import Image from "next/image";
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
+import Link from "next/link";
 import { Mona_Sans, Roboto_Mono } from "next/font/google";
 import "./globals.css";
 import { getAppVersion } from "@/lib/version";
@@ -68,6 +69,11 @@ export default async function RootLayout({
                 <div className="pill">
                   Signed in as <strong>{session.username}</strong>
                 </div>
+                {session.role === "admin" ? (
+                  <Link className="button button--ghost" href="/admin">
+                    Admin
+                  </Link>
+                ) : null}
                 <LogoutButton />
               </div>
             ) : (
