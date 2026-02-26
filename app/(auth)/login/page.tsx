@@ -130,11 +130,54 @@ export default function LoginPage() {
             </form>
           </section>
 
-          <aside className="auth-pane auth-pane--secondary">
+          <aside className="auth-pane auth-pane--secondary auth-pane--signup">
+            <p className="eyebrow">New to DataGems</p>
             <h2>Create an account</h2>
             <p className="muted">
               New here? Create a DataGems account and receive credentials by email.
             </p>
+            <div className="signup-meta">
+              <span className="signup-pill">~1 minute setup</span>
+              <span className="signup-pill">Credentials by email</span>
+            </div>
+            <div className="signup-checklist">
+              <div className="signup-item">
+                <span className="signup-item__icon" aria-hidden="true">
+                  1
+                </span>
+                <div>
+                  <strong>Share basic profile details</strong>
+                  <p className="muted small">Name, email, and country are required.</p>
+                </div>
+              </div>
+              <div className="signup-item">
+                <span className="signup-item__icon" aria-hidden="true">
+                  2
+                </span>
+                <div>
+                  <strong>Receive your login credentials</strong>
+                  <p className="muted small">
+                    A generated username and password are sent automatically.
+                  </p>
+                </div>
+              </div>
+              <div className="signup-item">
+                <span className="signup-item__icon" aria-hidden="true">
+                  3
+                </span>
+                <div>
+                  <strong>Resend if delivery fails</strong>
+                  <p className="muted small">
+                    Use the resend action on the registration page if needed.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="signup-actions">
+              <Link className="button auth-pane__cta" href="/register">
+                Create account
+              </Link>
+            </div>
             <p className="muted small">
               Project owner references:{" "}
               <a
@@ -155,9 +198,6 @@ export default function LoginPage() {
                 SmartClover Products
               </a>
             </p>
-            <Link className="button button--ghost auth-pane__cta" href="/register">
-              Create account
-            </Link>
           </aside>
         </div>
       </section>
