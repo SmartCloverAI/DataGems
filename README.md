@@ -62,6 +62,11 @@ npm run dev
   In `development`/`test`, if omitted, DataGems uses an insecure built-in fallback secret for local runs only.
 - `DATAGEN_APP_HOST` / `DATAGEN_APP_PORT`: Public app host/port (defaults: `$R1EN_HOST_IP` / `3000`, fallback: `DATAGEN_APP_URL`).
 - `DATAGEN_INFERENCE_HOST` / `DATAGEN_INFERENCE_PORT`: Inference gateway host/port (defaults: `$R1EN_HOST_IP` / `$API_PORT`, fallback: `DATAGEN_INFERENCE_BASE_URL`).
+- `DATAGEN_SMTP_HOST`: SMTP host for signup email delivery (default `smtp.resend.com`).
+- `DATAGEN_SMTP_PORT`: SMTP port (default `465`).
+- `DATAGEN_SMTP_USER`: SMTP username (default `resend`).
+- `DATAGEN_SMTP_PASS`: SMTP password/API key (default empty; optional to define, required to actually send email).
+- `DATAGEN_SMTP_FROM`: Sender email (default `no-reply@datagems.app`).
 - `R1EN_CHAINSTORE_PEERS`: Peer list for multi-instance execution (comma-separated or JSON array string).
 - `R1EN_HOST_ADDR`: Current instance peer id (must match one entry in `R1EN_CHAINSTORE_PEERS`).
 - `LOG_INFERENCE_REQUESTS`: When `true`, logs outgoing inference requests (auth header redacted).
@@ -78,12 +83,21 @@ npm run dev
 - `DATAGEN_LOCAL_CACHE_DIR`: Local worker cache directory (default `/_local_cache/datagen`).
 - `DATAGEN_ACTIVE_POLL_SECONDS`: UI poll interval while tasks are active (default `10`).
 - `DATAGEN_IDLE_POLL_SECONDS`: UI poll interval when idle (default `30`).
+- `DATAGEN_REGISTER_RATE_WINDOW_SECONDS`: Registration rate-limit window seconds (default `900`).
+- `DATAGEN_REGISTER_MAX_PER_IP`: Max registration attempts per IP per window (default `10`).
+- `DATAGEN_REGISTER_MAX_PER_EMAIL`: Max registration attempts per email per window (default `3`).
+- `DATAGEN_REGISTER_RESEND_WINDOW_SECONDS`: Resend rate-limit window seconds (default `900`).
+- `DATAGEN_REGISTER_RESEND_MAX_PER_IP`: Max resend attempts per IP per window (default `5`).
+- `DATAGEN_REGISTER_RESEND_MAX_PER_EMAIL`: Max resend attempts per email per window (default `2`).
+- `DATAGEN_REGISTER_FAILURE_TTL_SECONDS`: TTL for failed-email resend records (default `86400`).
 
 ## Current API Surface
 
 - `POST /api/auth/login`: Authenticate via `cstore-auth-ts`; sets HttpOnly session cookie.
 - `POST /api/auth/logout`: Clears the session.
 - `GET /api/auth/me`: Returns current session (`401` when missing/invalid).
+- `POST /api/auth/register`: Creates account and emails generated credentials.
+- `POST /api/auth/register/resend`: Re-sends credentials for recent failed delivery attempts.
 - `GET /api/metrics`: Auth-protected metrics from persisted CStore counters.
 
 ## Project layout (high level)
@@ -91,9 +105,10 @@ npm run dev
 ```text
 app/
   (auth)/login/page.tsx
+  (auth)/register/page.tsx
   (app)/page.tsx
   api/
-    auth/login|logout|me
+    auth/login|logout|me|register|register/resend
     metrics/route.ts
 lib/
   auth/

@@ -1,8 +1,8 @@
 import { getCStore } from "@/lib/ratio1/client";
-import { usersIndexKey } from "@/lib/ratio1/keys";
+import { userEmailIndexKey, usersIndexKey } from "@/lib/ratio1/keys";
 import { DataGenUserIndex } from "./types";
 
-function normalizeEmail(email: string) {
+export function normalizeEmail(email: string) {
   return email.trim().toLowerCase();
 }
 
@@ -17,6 +17,13 @@ export async function upsertUserIndex(user: DataGenUserIndex) {
     key: nextUser.username,
     value: JSON.stringify(nextUser),
   });
+  if (nextUser.email) {
+    await cstore.hset({
+      hkey: userEmailIndexKey(),
+      key: nextUser.email,
+      value: nextUser.username,
+    });
+  }
   return nextUser;
 }
 
@@ -36,23 +43,7 @@ export async function getUserIndexByEmail(email: string) {
   if (!normalized) return null;
 
   const cstore = getCStore();
-  const all = await cstore.hgetall({ hkey: usersIndexKey() });
-  if (!all || typeof all !== "object") return null;
-
-  for (const value of Object.values(all as Record<string, unknown>)) {
-    if (typeof value !== "string") continue;
-    try {
-      const parsed = JSON.parse(value) as DataGenUserIndex;
-      if (
-        typeof parsed?.email === "string" &&
-        normalizeEmail(parsed.email) === normalized
-      ) {
-        return parsed;
-      }
-    } catch {
-      // Skip malformed entry.
-    }
-  }
-
-  return null;
+  const username = await cstore.hget({ hkey: userEmailIndexKey(), key: normalized });
+  if (!username || typeof username !== "string") return null;
+  return getUserIndex(username);
 }

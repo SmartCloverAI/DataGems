@@ -65,4 +65,32 @@ describe("environment expansion", () => {
     expect(readEnv("DATAGEN_INFERENCE_HOST")).toBe("172.18.0.3");
     expect(readEnv("DATAGEN_INFERENCE_PORT")).toBe("15035");
   });
+
+  it("returns PoC defaults for SMTP and registration rate settings", () => {
+    unsetEnv("DATAGEN_SMTP_HOST");
+    unsetEnv("DATAGEN_SMTP_PORT");
+    unsetEnv("DATAGEN_SMTP_USER");
+    unsetEnv("DATAGEN_SMTP_FROM");
+    unsetEnv("DATAGEN_SMTP_PASS");
+    unsetEnv("DATAGEN_REGISTER_RATE_WINDOW_SECONDS");
+    unsetEnv("DATAGEN_REGISTER_MAX_PER_IP");
+    unsetEnv("DATAGEN_REGISTER_MAX_PER_EMAIL");
+    unsetEnv("DATAGEN_REGISTER_RESEND_WINDOW_SECONDS");
+    unsetEnv("DATAGEN_REGISTER_RESEND_MAX_PER_IP");
+    unsetEnv("DATAGEN_REGISTER_RESEND_MAX_PER_EMAIL");
+    unsetEnv("DATAGEN_REGISTER_FAILURE_TTL_SECONDS");
+
+    expect(readEnv("DATAGEN_SMTP_HOST")).toBe("smtp.resend.com");
+    expect(readEnv("DATAGEN_SMTP_PORT")).toBe("465");
+    expect(readEnv("DATAGEN_SMTP_USER")).toBe("resend");
+    expect(readEnv("DATAGEN_SMTP_FROM")).toBe("no-reply@datagems.app");
+    expect(readEnv("DATAGEN_SMTP_PASS")).toBe("");
+    expect(readEnv("DATAGEN_REGISTER_RATE_WINDOW_SECONDS")).toBe("900");
+    expect(readEnv("DATAGEN_REGISTER_MAX_PER_IP")).toBe("10");
+    expect(readEnv("DATAGEN_REGISTER_MAX_PER_EMAIL")).toBe("3");
+    expect(readEnv("DATAGEN_REGISTER_RESEND_WINDOW_SECONDS")).toBe("900");
+    expect(readEnv("DATAGEN_REGISTER_RESEND_MAX_PER_IP")).toBe("5");
+    expect(readEnv("DATAGEN_REGISTER_RESEND_MAX_PER_EMAIL")).toBe("2");
+    expect(readEnv("DATAGEN_REGISTER_FAILURE_TTL_SECONDS")).toBe("86400");
+  });
 });

@@ -3,9 +3,19 @@ import { randomBytes } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
-import { sendSignupEmail } from "@/lib/auth/mailer";
+import {
+  MailerConfigError,
+  resolveSmtpConfig,
+  sendSignupEmail,
+} from "@/lib/auth/mailer";
+import { recordRegisterMailFailure } from "@/lib/auth/registrationFailures";
+import { checkRegistrationRateLimit } from "@/lib/auth/registrationRateLimit";
 import { ensureAuthInitialized } from "@/lib/ratio1/auth";
-import { getUserIndexByEmail, upsertUserIndex } from "@/lib/datagen/userIndex";
+import {
+  getUserIndexByEmail,
+  normalizeEmail,
+  upsertUserIndex,
+} from "@/lib/datagen/userIndex";
 
 export const runtime = "nodejs";
 
@@ -51,6 +61,18 @@ function isConfigError(error: unknown) {
   return message.includes("Missing required environment variable");
 }
 
+function requestIp(request: NextRequest) {
+  const forwarded = request.headers.get("x-forwarded-for");
+  if (forwarded) {
+    const [first] = forwarded.split(",");
+    const candidate = first?.trim();
+    if (candidate) return candidate;
+  }
+  const realIp = request.headers.get("x-real-ip")?.trim();
+  if (realIp) return realIp;
+  return "unknown";
+}
+
 export async function POST(request: NextRequest) {
   const payload = await request.json().catch(() => null);
   const parsed = registrationSchema.safeParse(payload ?? {});
@@ -59,9 +81,37 @@ export async function POST(request: NextRequest) {
   }
 
   const { name, email, country } = parsed.data;
-  const normalizedEmail = email.trim().toLowerCase();
+  const normalizedEmail = normalizeEmail(email);
+  const rateLimitResult = await checkRegistrationRateLimit({
+    ip: requestIp(request),
+    email: normalizedEmail,
+    kind: "register",
+  });
+  if (!rateLimitResult.allowed) {
+    const response = NextResponse.json(
+      { error: "Too many registration attempts. Please try again later." },
+      { status: 429 },
+    );
+    if (rateLimitResult.retryAfterSeconds) {
+      response.headers.set("Retry-After", String(rateLimitResult.retryAfterSeconds));
+    }
+    return response;
+  }
+
   let username = buildUsername(normalizedEmail);
   const password = generatePassword();
+
+  try {
+    resolveSmtpConfig();
+  } catch (error) {
+    if (error instanceof MailerConfigError) {
+      return NextResponse.json(
+        { error: "Email delivery is not configured. Please try again later." },
+        { status: 503 },
+      );
+    }
+    throw error;
+  }
 
   try {
     const existing = await getUserIndexByEmail(normalizedEmail);
@@ -91,13 +141,30 @@ export async function POST(request: NextRequest) {
     }
     await upsertUserIndex({
       username: user.username,
-      name,
+      name: name.trim(),
       email: normalizedEmail,
-      country,
+      country: country.trim(),
       createdAt: new Date().toISOString(),
     });
 
-    await sendSignupEmail({ to: normalizedEmail, username: user.username, password });
+    try {
+      await sendSignupEmail({ to: normalizedEmail, username: user.username, password });
+    } catch (error) {
+      await recordRegisterMailFailure({
+        email: normalizedEmail,
+        username: user.username,
+        password,
+      });
+      const status = error instanceof MailerConfigError ? 503 : 502;
+      return NextResponse.json(
+        {
+          error:
+            "Account created, but email delivery failed. Use the resend endpoint to retry.",
+          canResend: true,
+        },
+        { status },
+      );
+    }
 
     return NextResponse.json({
       username: user.username,

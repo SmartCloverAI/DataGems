@@ -8,6 +8,8 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [country, setCountry] = useState("");
   const [loading, setLoading] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
+  const [canResend, setCanResend] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
@@ -16,22 +18,60 @@ export default function RegisterPage() {
     setLoading(true);
     setError(null);
     setSuccess(null);
+    setCanResend(false);
 
-    const response = await fetch("/api/auth/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, country }),
-    });
+    try {
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, country }),
+      });
 
-    const data = await response.json().catch(() => null);
-    if (!response.ok) {
-      setError(data?.error ?? "Unable to create account");
+      const data = await response.json().catch(() => null);
+      if (!response.ok) {
+        setError(data?.error ?? "Unable to create account");
+        setCanResend(Boolean(data?.canResend));
+        setLoading(false);
+        return;
+      }
+
+      const username = typeof data?.username === "string" ? data.username : null;
+      setSuccess(
+        username
+          ? `Account created for ${username}. Credentials were emailed to you.`
+          : "Account created. Credentials were emailed to you.",
+      );
       setLoading(false);
       return;
+    } catch {
+      setError("Network error while creating account");
+      setLoading(false);
     }
+  };
 
-    setSuccess("Account created. Check your email for credentials.");
-    setLoading(false);
+  const handleResend = async () => {
+    if (!email || resendLoading) return;
+    setResendLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch("/api/auth/register/resend", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await response.json().catch(() => null);
+      if (!response.ok) {
+        setError(data?.error ?? "Unable to resend credentials");
+        setResendLoading(false);
+        return;
+      }
+      setSuccess(data?.message ?? "Resend requested. Check your email.");
+      setResendLoading(false);
+    } catch {
+      setError("Network error while resending credentials");
+      setResendLoading(false);
+    }
   };
 
   return (
@@ -42,8 +82,8 @@ export default function RegisterPage() {
             <p className="eyebrow">DataGems</p>
             <h1>Create account</h1>
             <p className="muted">
-              We will email your credentials once the account is created. DataGems
-              is an open-source system by{" "}
+              Credentials are emailed once your account is created. DataGems is an
+              open-source system by{" "}
               <a
                 className="inline-link"
                 href="https://smartclover.ro/"
@@ -91,6 +131,16 @@ export default function RegisterPage() {
 
           {error ? <p className="error">{error}</p> : null}
           {success ? <p className="muted">{success}</p> : null}
+          {canResend ? (
+            <button
+              className="button button--ghost"
+              type="button"
+              disabled={resendLoading}
+              onClick={handleResend}
+            >
+              {resendLoading ? "Resending..." : "Resend credentials email"}
+            </button>
+          ) : null}
 
           <div className="form__actions">
             <button className="button" type="submit" disabled={loading}>
