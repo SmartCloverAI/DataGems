@@ -4,6 +4,8 @@
 
 It combines a Next.js full-stack app with Ratio1 CStore persistence and strict authentication to support auditable AI-data workflows for product, research, and regulated environments.
 
+Production deployment: https://datagems.app
+
 ## Why DataGems
 
 - Generate synthetic datasets with predictable quality using one model call per record.
@@ -116,7 +118,7 @@ lib/
   ratio1/
 ```
 
-## Citation (BibTeX)
+## Citations
 
 ```bibtex
 @software{smartclover_datagen_2026,
@@ -130,8 +132,35 @@ lib/
 }
 ```
 
+
+```bibtex
+@article{Nyanchoka_2022,
+  title   = {Understanding facilitators and barriers to follow-up after abnormal cervical cancer screening examination among women living in remote areas of Romania: a qualitative study protocol},
+  author  = {Nyanchoka, Linda and Damian, Andreea and Nyg{\aa}rd, Mari},
+  journal = {BMJ Open},
+  volume  = {12},
+  number  = {2},
+  pages   = {e053954},
+  year    = {2022},
+  month   = feb,
+  doi     = {10.1136/bmjopen-2021-053954},
+  url     = {https://doi.org/10.1136/bmjopen-2021-053954}
+}
+```
+
+```bibtex
+@misc{smartclover_cerviguard_pilot_2026,
+  title        = {SmartClover CerviGuard Pilot},
+  author       = {Andreea D and Cristian Bleotiu and Vitalii Toderian and Florian Nicula},
+  year         = {2026},
+  howpublished = {\url{https://github.com/SmartCloverAI/CerviGuard}},
+  note         = {Pilot web console for cervical image analysis and case management; citation metadata as published in the CerviGuard repository README}
+}
+```
+
 ## References
 
+- DataGems production app: https://datagems.app
 - SmartClover official site: https://smartclover.ro/
 - SmartClover About: https://smartclover.ro/about
 - SmartClover Products & More: https://smartclover.ro/products
