@@ -6,6 +6,12 @@ DataGems is a **full-stack TypeScript web app + API** for generating synthetic d
 
 ---
 
+## Deployment endpoint
+
+- Production app URL: `https://datagems.app`
+
+---
+
 ## 0) Non‑negotiables
 
 - **Use `@ratio1/cstore-auth-ts`** for auth. All actions require auth (UI *and* API).
