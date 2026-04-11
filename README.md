@@ -1,8 +1,8 @@
 # DataGems
 
-**DataGems** is a commercial-grade synthetic data generation platform that helps teams create high-quality structured datasets quickly, safely, and repeatedly.
+**DataGems** is a commercial-grade synthetic data generation project that leverages the Ratio1 SDK and on-edge-cloud sovereign infrastructure to help teams create high-quality structured datasets quickly, safely, and repeatedly.
 
-It combines a Next.js full-stack app with Ratio1 CStore persistence and strict authentication to support auditable AI-data workflows for product, research, and regulated environments.
+It combines a Next.js full-stack app with Ratio1-backed persistence and strict authentication to support auditable AI-data workflows for product, research, and regulated environments.
 
 Production deployment: https://datagems.app
 
