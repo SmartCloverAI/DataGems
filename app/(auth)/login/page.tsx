@@ -41,17 +41,9 @@ export default function LoginPage() {
             <p className="eyebrow">DataGems</p>
             <h1>Sign in</h1>
             <p className="muted">
-              Use your cstore-auth credentials to access the DataGems dashboard.
-              This open-source system is owned by{" "}
-              <a
-                className="inline-link"
-                href="https://smartclover.ro/"
-                target="_blank"
-                rel="noreferrer"
-              >
-                SmartClover SRL
-              </a>
-              .
+              Use your cstore-auth credentials to access the live DataGems workspace. DataGems is an open-source
+              SmartClover product for schema-driven synthetic-data generation, configured jobs, monitoring, and JSON/CSV
+              export.
             </p>
           </div>
         </header>

@@ -21,7 +21,7 @@ const robotoMono = Roboto_Mono({
 export const metadata: Metadata = {
   title: "DataGems",
   description:
-    "Generate synthetic datasets with one-call-per-record inference. Open-source system by SmartClover SRL.",
+    "Live SmartClover product for schema-driven synthetic-data generation, configured jobs, monitoring, and JSON/CSV export.",
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },
@@ -57,7 +57,7 @@ export default async function RootLayout({
                 priority
               />
               <div className="brand__copy">
-                <p className="brand__tagline">Synthetic dataset generator</p>
+                <p className="brand__tagline">Live synthetic-data research product</p>
                 <p className="brand__owner">
                   Open source by{" "}
                   <a
